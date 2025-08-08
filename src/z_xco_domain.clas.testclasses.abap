@@ -4,6 +4,8 @@ CLASS ltcl_unit_test DEFINITION FINAL FOR TESTING
 
   PRIVATE SECTION.
 
+    "For a test of all built-in-types, see Unit tests of Z_XCO_DATABASE_TABLE.
+
     METHODS create_char25_domain FOR TESTING
       RAISING cx_static_check.
 
@@ -32,7 +34,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
         name              = 'ZXCO_UT_DOMAIN_1'
         short_description = 'Unit Test Domain 1'
         built_in_type     = VALUE #(
-          type     = z_xco_domain=>cs_data_type-char
+          type     = z_xco_built_in_type_factory=>cs_data_type-character
           length   = 25
           decimals = 0 )
         case_sensitive    = abap_false
@@ -49,7 +51,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
         name              = 'ZXCO_UT_DOMAIN_2'
         short_description = 'Unit Test Domain 2'
         built_in_type     = VALUE #(
-          type     = z_xco_domain=>cs_data_type-char
+          type     = z_xco_built_in_type_factory=>cs_data_type-character
           length   = 8
           decimals = 0 )
         case_sensitive    = abap_false
@@ -72,7 +74,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
         name              = 'ZXCO_UT_DOMAIN_3'
         short_description = 'Unit Test Domain 3'
         built_in_type     = VALUE #(
-          type     = z_xco_domain=>cs_data_type-char
+          type     = z_xco_built_in_type_factory=>cs_data_type-character
           length   = 26
           decimals = 0 )
         case_sensitive    = abap_true

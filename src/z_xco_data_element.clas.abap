@@ -40,7 +40,7 @@ CLASS z_xco_data_element DEFINITION
     TYPES tv_type_category TYPE c LENGTH 20.
     CONSTANTS:
       BEGIN OF cs_type_category,
-        predefined_type TYPE tv_type_category VALUE 'PRE_TYPE',
+        built_in_type TYPE tv_type_category VALUE 'BUILT_IN_TYPE',
         domain          TYPE tv_type_category VALUE 'DOMAIN',
 
         "TODO:
@@ -54,7 +54,7 @@ CLASS z_xco_data_element DEFINITION
 
     TYPES:
       BEGIN OF ts_built_in_type,
-        type     TYPE cl_xco_ad_built_in_type=>tv_type,
+        type     TYPE z_xco_built_in_type_factory=>tv_data_type,
         length   TYPE cl_xco_ad_built_in_type=>tv_length,
         decimals TYPE cl_xco_ad_built_in_type=>tv_decimals,
       END OF ts_built_in_type.
@@ -116,39 +116,24 @@ CLASS z_xco_data_element IMPLEMENTATION.
     " Type
     CASE is_create-data_element_data-type_category.
 
-      WHEN cs_type_category-predefined_type.
-
+      WHEN cs_type_category-built_in_type.
 
         DATA lo_data_element_data_type TYPE REF TO if_xco_gen_dtel_data_type.
 
-        CASE is_create-data_element_data-built_in_type-type.
-
-          WHEN cs_data_type-dec.
-            lo_data_element_data_type = xco_cp_abap_dictionary=>built_in_type->dec(
-               iv_length   = is_create-data_element_data-built_in_type-length
-               iv_decimals = is_create-data_element_data-built_in_type-decimals ).
-
-          WHEN cs_data_type-char.
-            lo_data_element_data_type = xco_cp_abap_dictionary=>built_in_type->char(
-              iv_length = is_create-data_element_data-built_in_type-length ).
-
-          WHEN OTHERS.
-
-            " TODO: implement other data types
-            ASSERT 1 = 0.
-            " lo_domain_format = xco_cp_abap_dictionary=>built_in_type->???
-
-        ENDCASE.
+        lo_data_element_data_type = NEW z_xco_built_in_type_factory( )->get_built_in_type(
+          iv_data_type     = is_create-data_element_data-built_in_type-type
+          iv_length        = is_create-data_element_data-built_in_type-length
+          iv_decimals      = is_create-data_element_data-built_in_type-decimals ).
 
         lo_specification->set_data_type(
             io_data_type = lo_data_element_data_type ).
 
       WHEN cs_type_category-domain.
 
-        DATA(lo) = xco_cp_abap_dictionary=>domain( iv_name = is_create-data_element_data-domain_name ).
+        DATA(lo_domain_data_type) = xco_cp_abap_dictionary=>domain( iv_name = is_create-data_element_data-domain_name ).
 
         lo_specification->set_data_type(
-            io_data_type = lo ).
+            io_data_type = lo_domain_data_type ).
 
       WHEN OTHERS.
 
@@ -178,7 +163,6 @@ CLASS z_xco_data_element IMPLEMENTATION.
 
     ro_data_element_bo = NEW #( ).
     ro_data_element_bo->gv_data_element_name = is_create-data_element_data-name.
-    "
 
   ENDMETHOD.
 
@@ -213,7 +197,7 @@ CLASS z_xco_data_element IMPLEMENTATION.
 
     DATA(lo_type) = lo_data_type->get_built_in_type( ).
     IF lo_type IS NOT INITIAL.
-      rs_data-type_category = cs_type_category-predefined_type.
+      rs_data-type_category = cs_type_category-built_in_type.
       rs_data-built_in_type-type = lo_type->type.
       rs_data-built_in_type-length = lo_type->length.
       rs_data-built_in_type-decimals = lo_type->decimals.

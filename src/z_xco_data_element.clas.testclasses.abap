@@ -4,6 +4,9 @@ CLASS ltcl_unit_test DEFINITION FINAL FOR TESTING
 
   PRIVATE SECTION.
 
+    "For a test of all built-in-types, see Unit tests of Z_XCO_DATABASE_TABLE.
+
+
     METHODS get_data " FOR TESTING
       RAISING cx_static_check.
 
@@ -46,7 +49,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
         name              = 'ZXCO_UT_DATA_ELEMENT_1'
         short_description = 'Unit Test Data Element 1'
 
-        type_category = z_xco_data_element=>cs_type_category-predefined_type
+        type_category = z_xco_data_element=>cs_type_category-built_in_type
         built_in_type     = VALUE #(
           type     = z_xco_data_element=>cs_data_type-char
           length   = 25
