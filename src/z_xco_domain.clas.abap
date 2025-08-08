@@ -190,7 +190,6 @@ CLASS z_xco_domain IMPLEMENTATION.
       iv_length        = is_create-domain_data-built_in_type-length
       iv_decimals      = is_create-domain_data-built_in_type-decimals ).
 
-
     CASE is_create-domain_data-built_in_type-type.
 
       WHEN cs_data_type-dec.

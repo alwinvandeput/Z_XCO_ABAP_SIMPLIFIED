@@ -180,8 +180,9 @@ CLASS z_xco_database_table IMPLEMENTATION.
       gv_db_table_name ).
 
     " Set Content
+    " TODO: variable is assigned but never used (ABAP cleaner)
     DATA(lo_active_content) = lo_xco_database_table->content( ).
-    "rs_data-content = lo_active_content->get( ).
+    " rs_data-content = lo_active_content->get( ).
 
     DATA(lo_fields_factory) = lo_xco_database_table->fields.
     DATA(lt_field_names) = lo_fields_factory->all->get_names( ).
@@ -197,16 +198,7 @@ CLASS z_xco_database_table IMPLEMENTATION.
       <ls_field>-name = <lv_field_name>.
 
       DATA(lo_field_content) = lo_field->content( ).
-      " TODO: variable is assigned but never used (ABAP cleaner)
       DATA(ls_field_content) = lo_field_content->get( ).
-
-*      short_description  TYPE tv_short_description,
-*      key_indicator      TYPE abap_bool,
-*      not_null           TYPE abap_bool,
-*      type               TYPE REF TO if_xco_dbt_field_type,
-*      language_indicator TYPE abap_bool,
-*      currency_quantity  TYPE if_xco_tab_field_content=>ts_currency_quantity,
-*      geodata            TYPE if_xco_tab_field_content=>ts_geodata,
 
       " Get each attribute individually.
       <ls_field>-short_description = ls_field_content-short_description.
@@ -239,7 +231,5 @@ CLASS z_xco_database_table IMPLEMENTATION.
     ENDLOOP.
 
   ENDMETHOD.
-
-
 
 ENDCLASS.
