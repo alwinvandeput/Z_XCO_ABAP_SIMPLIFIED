@@ -29,18 +29,26 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
         annotations = VALUE #(
           ( name = 'AccessControl.authorizationCheck' value_items = VALUE #(
-            ( type =  z_xco_data_definition=>cs_value_item_type-enum_value value = |NOT_REQUIRED| ) ) )
-          ( name = 'Metadata.allowExtensions'         value_items = VALUE #(
-            ( type =  z_xco_data_definition=>cs_value_item_type-boolean_value value = |true| ) ) )
-          ( name = 'EndUserText.label'                value_items = VALUE #(
-            ( type =  z_xco_data_definition=>cs_value_item_type-string_value value = |Sales Order| ) ) )
-          ( name = 'ObjectModel.semanticKey' value_items = VALUE #(
-            ( type = z_xco_data_definition=>cs_value_item_type-begin_array )
-            ( type =  z_xco_data_definition=>cs_value_item_type-string_value value = |SalesOrderNo| )
-            ( type = z_xco_data_definition=>cs_value_item_type-end_array )
+            ( type =  z_xco_data_definition=>cs_value_item_type-enum_value
+              value = |NOT_REQUIRED| ) ) )
+          ( name = 'Metadata.allowExtensions'
+            value_items = VALUE #(
+              ( type =  z_xco_data_definition=>cs_value_item_type-boolean_value
+                value = |true| ) ) )
+          ( name = 'EndUserText.label'
+            value_items = VALUE #(
+              ( type =  z_xco_data_definition=>cs_value_item_type-string_value
+                value = |Sales Order| ) ) )
+          ( name = 'ObjectModel.semanticKey'
+            value_items = VALUE #(
+              ( type = z_xco_data_definition=>cs_value_item_type-begin_array )
+              ( type =  z_xco_data_definition=>cs_value_item_type-string_value
+                value = |SalesOrderNo| )
+              ( type = z_xco_data_definition=>cs_value_item_type-end_array )
           ) )
-          ( name = 'ObjectModel.sapObjectNodeType.name' value_items = VALUE #(
-            ( type =  z_xco_data_definition=>cs_value_item_type-string_value value = |ZSDSalesOrder000TP| ) ) )
+          ( name = 'ObjectModel.sapObjectNodeType.name'
+             value_items = VALUE #(
+              ( type =  z_xco_data_definition=>cs_value_item_type-string_value value = |ZSDSalesOrder000TP| ) ) )
         )
 
         root_ind = abap_true
@@ -49,6 +57,19 @@ CLASS ltcl_unit_test IMPLEMENTATION.
         data_source = VALUE #(
           name = 'ZSDSlsOrder000TP'
           alias_name = 'SalesOrder'
+        )
+
+        compositions = value #(
+          ( entity_name = 'ZSDR_SLSRDRTMTP2'
+            alias_name = '_SalesOrderItem3'
+            cardinality = xco_cp_cds=>cardinality->zero_to_n )
+        )
+
+        associations = value #(
+          ( entity_name = 'ZSDR_SLSRDRTMTP2'
+            alias_name = '_SalesOrderItem6'
+            cardinality = xco_cp_cds=>cardinality->zero_to_n
+            condition_text = '_SalesOrderItem6.ParentUuid = $projection.Uuid' )
         )
 
         fields = VALUE #(
@@ -60,12 +81,10 @@ CLASS ltcl_unit_test IMPLEMENTATION.
             name = 'uuid'
             alias_name = 'Uuid'
           )
-          ( key_indicator = abap_false
-            name = 'sales_order_no'
+          ( name = 'sales_order_no'
             alias_name = 'SalesOrderNo'
           )
-          ( key_indicator = abap_false
-            name = 'sales_order_type'
+          ( name = 'sales_order_type'
             alias_name = 'SalesOrderType'
             annotations = VALUE #(
               ( name = 'ObjectModel.text.element' value_items = VALUE #(
@@ -75,11 +94,15 @@ CLASS ltcl_unit_test IMPLEMENTATION.
               ) )
             )
           )
-          ( key_indicator = abap_false
-            name = 'sales_order_type_descr'
+          ( name = 'sales_order_type_descr'
             alias_name = 'SalesOrderTypeDescr'
           )
+
+          ( name = '_SalesOrderItem3' )
+          ( name = '_SalesOrderItem6' )
         )
+
+        where_condition_text = '( sales_order_type = sales_order_type ) or sales_order_type = sales_order_type'
 
       )
     ).
