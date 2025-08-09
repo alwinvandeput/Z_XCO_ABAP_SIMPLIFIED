@@ -18,7 +18,7 @@ CLASS ltcl_unit_test DEFINITION FINAL FOR TESTING
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     " Helper methods
     METHODS _create_domain
-      IMPORTING is_create TYPE z_xco_domain=>ts_create.
+      IMPORTING is_create TYPE z_xco_ddic_domain=>ts_create.
 
 ENDCLASS.
 
@@ -86,7 +86,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     "Create
-    DATA(lo_create_domain) = z_xco_domain=>create_or_update_instance( is_create ).
+    DATA(lo_create_domain) = z_xco_ddic_domain=>create_or_update_instance( is_create ).
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     "Validate

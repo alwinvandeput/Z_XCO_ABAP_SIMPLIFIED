@@ -1,4 +1,4 @@
-CLASS z_xco_database_table DEFINITION
+CLASS z_xco_ddic_database_table DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -60,11 +60,11 @@ CLASS z_xco_database_table DEFINITION
 
     CLASS-METHODS create_or_update_instance
       IMPORTING is_create                TYPE ts_create
-      RETURNING VALUE(ro_database_table) TYPE REF TO z_xco_database_table.
+      RETURNING VALUE(ro_database_table) TYPE REF TO z_xco_ddic_database_table.
 
     CLASS-METHODS get_instance
       IMPORTING iv_db_table_name      TYPE tv_db_table_name
-      RETURNING VALUE(ro_db_table_bo) TYPE REF TO z_xco_database_table.
+      RETURNING VALUE(ro_db_table_bo) TYPE REF TO z_xco_ddic_database_table.
 
     METHODS get_data
       RETURNING VALUE(rs_data) TYPE ts_data.
@@ -78,7 +78,7 @@ CLASS z_xco_database_table DEFINITION
 ENDCLASS.
 
 
-CLASS z_xco_database_table IMPLEMENTATION.
+CLASS z_xco_ddic_database_table IMPLEMENTATION.
 
   METHOD create_or_update_instance.
 

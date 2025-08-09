@@ -13,7 +13,7 @@ CLASS ltcl_unit_test DEFINITION FINAL FOR TESTING
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     " Helper methods
     METHODS _create_database_table
-      IMPORTING is_create TYPE z_xco_database_table=>ts_create.
+      IMPORTING is_create TYPE z_xco_ddic_database_table=>ts_create.
 
 ENDCLASS.
 
@@ -22,7 +22,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
   METHOD get_data.
 
-    DATA(lo_db_table) = z_xco_database_table=>get_instance( 'ZZAP_SALES_ORDER' ).
+    DATA(lo_db_table) = z_xco_ddic_database_table=>get_instance( 'ZZAP_SALES_ORDER' ).
 
     DATA(ls_data) = lo_db_table->get_data( ).
 
@@ -32,23 +32,23 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
   METHOD create_w_built_in_types.
 
-    DATA(ls_data_element_data) = VALUE z_xco_data_element=>ts_create(
+    DATA(ls_data_element_data) = VALUE z_xco_ddic_data_element=>ts_create(
       transport_request = 'TRLK920710'
       package           = 'ZXCO_UNIT_TEST'
       data_element_data = VALUE #(
         name              = 'ZXCO_UT_DB_TABLE_DTEL_1'
         short_description = 'Unit Test Data Element 1'
 
-        type_category = z_xco_data_element=>cs_type_category-built_in_type
+        type_category = z_xco_ddic_data_element=>cs_type_category-built_in_type
         built_in_type     = VALUE #(
-          type     = z_xco_data_element=>cs_data_type-char
+          type     = z_xco_ddic_data_element=>cs_data_type-char
           length   = 25
           decimals = 0 ) )
     ).
-    z_xco_data_element=>create_or_update_instance( ls_data_element_data ).
+    z_xco_ddic_data_element=>create_or_update_instance( ls_data_element_data ).
 
 
-    DATA(built_in) = z_xco_database_table=>cs_type_category-built_in_type.
+    DATA(built_in) = z_xco_ddic_database_table=>cs_type_category-built_in_type.
 
     _create_database_table( VALUE #(
       transport_request = 'TRLK920710'
@@ -59,27 +59,27 @@ CLASS ltcl_unit_test IMPLEMENTATION.
           ( name = 'CLIENT'
             key_indicator = abap_true
             not_null = abap_true
-            type_category = z_xco_database_table=>cs_type_category-built_in_type
+            type_category = z_xco_ddic_database_table=>cs_type_category-built_in_type
             built_in_type = VALUE #(
               type = z_xco_built_in_type_factory=>cs_data_type-client
               length = 3 )
           )
           ( name = 'FIELD_1'
             key_indicator = abap_false
-            type_category = z_xco_database_table=>cs_type_category-built_in_type
+            type_category = z_xco_ddic_database_table=>cs_type_category-built_in_type
             built_in_type = VALUE #(
               type = z_xco_built_in_type_factory=>cs_data_type-character
               length = 10 )
           )
           ( name = 'FIELD_2'
             key_indicator = abap_false
-            type_category = z_xco_database_table=>cs_type_category-data_element
+            type_category = z_xco_ddic_database_table=>cs_type_category-data_element
             data_element_name = 'ZXCO_UT_DB_TABLE_DTEL_1'
             short_description = ls_data_element_data-data_element_data-short_description
           )
           ( name = 'FIELD_3'
             key_indicator = abap_false
-            type_category = z_xco_database_table=>cs_type_category-built_in_type
+            type_category = z_xco_ddic_database_table=>cs_type_category-built_in_type
             built_in_type = VALUE #(
               type = z_xco_built_in_type_factory=>cs_data_type-number_character
               length = 5 )
@@ -123,7 +123,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
   METHOD _create_database_table.
 
-    DATA(lo_database_table) = z_xco_database_table=>create_or_update_instance( is_create ).
+    DATA(lo_database_table) = z_xco_ddic_database_table=>create_or_update_instance( is_create ).
 
     " TODO: variable is assigned but never used (ABAP cleaner)
     DATA(ls_database_table_data) = lo_database_table->get_data( ).

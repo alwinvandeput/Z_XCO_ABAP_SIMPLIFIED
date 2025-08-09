@@ -1,4 +1,4 @@
-CLASS z_xco_view_entity DEFINITION
+CLASS z_xco_cds_view_entity DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -164,7 +164,7 @@ CLASS z_xco_view_entity DEFINITION
 
     CLASS-METHODS create_or_update_instance
       IMPORTING is_create          TYPE ts_create
-      RETURNING VALUE(ro_cds_view) TYPE REF TO z_xco_view_entity.
+      RETURNING VALUE(ro_cds_view) TYPE REF TO z_xco_cds_view_entity.
 
     METHODS get_data
       IMPORTING is_select_data TYPE ts_select_data OPTIONAL
@@ -251,14 +251,14 @@ CLASS z_xco_view_entity DEFINITION
     CLASS-METHODS _set_data_def_type
       IMPORTING
         io_specification              TYPE REF TO if_xco_cp_gen_ddls_s_form
-        is_create                     TYPE z_xco_view_entity=>ts_create
+        is_create                     TYPE z_xco_cds_view_entity=>ts_create
       RETURNING
         VALUE(ro_cds_data_definition) TYPE REF TO if_xco_gen_ddls_s_fo_view_e.
 
 ENDCLASS.
 
 
-CLASS z_xco_view_entity IMPLEMENTATION.
+CLASS z_xco_cds_view_entity IMPLEMENTATION.
 
   METHOD create_or_update_instance.
 

@@ -1,4 +1,4 @@
-CLASS z_xco_domain DEFINITION
+CLASS z_xco_ddic_domain DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -71,11 +71,11 @@ CLASS z_xco_domain DEFINITION
 
     CLASS-METHODS get_instance
       IMPORTING iv_domain_name      TYPE tv_domain_name
-      RETURNING VALUE(ro_domain_bo) TYPE REF TO z_xco_domain.
+      RETURNING VALUE(ro_domain_bo) TYPE REF TO z_xco_ddic_domain.
 
     CLASS-METHODS create_or_update_instance
       IMPORTING is_create           TYPE ts_create
-      RETURNING VALUE(ro_domain_bo) TYPE REF TO z_xco_domain.
+      RETURNING VALUE(ro_domain_bo) TYPE REF TO z_xco_ddic_domain.
 
     METHODS get_data
       RETURNING VALUE(rs_data) TYPE ts_data.
@@ -96,7 +96,7 @@ ENDCLASS.
 
 
 
-CLASS z_xco_domain IMPLEMENTATION.
+CLASS z_xco_ddic_domain IMPLEMENTATION.
 
   METHOD get_instance.
 

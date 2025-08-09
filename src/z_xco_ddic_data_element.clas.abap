@@ -1,4 +1,4 @@
-CLASS z_xco_data_element DEFINITION
+CLASS z_xco_ddic_data_element DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -67,7 +67,7 @@ CLASS z_xco_data_element DEFINITION
         type_category     TYPE tv_type_category,
         built_in_type     TYPE ts_built_in_type,
 
-        domain_name       TYPE z_xco_domain=>tv_domain_name,
+        domain_name       TYPE z_ddic_xco_domain=>tv_domain_name,
       END OF ts_data.
 
     TYPES:
@@ -79,11 +79,11 @@ CLASS z_xco_data_element DEFINITION
 
     CLASS-METHODS create_or_update_instance
       IMPORTING is_create                 TYPE ts_create
-      RETURNING VALUE(ro_data_element_bo) TYPE REF TO z_xco_data_element.
+      RETURNING VALUE(ro_data_element_bo) TYPE REF TO z_xco_ddic_data_element.
 
     CLASS-METHODS get_instance
       IMPORTING iv_data_element_name      TYPE tv_data_element_name
-      RETURNING VALUE(ro_data_element_bo) TYPE REF TO z_xco_data_element.
+      RETURNING VALUE(ro_data_element_bo) TYPE REF TO z_xco_ddic_data_element.
 
     METHODS get_data
       RETURNING VALUE(rs_data) TYPE ts_data.
@@ -97,7 +97,7 @@ CLASS z_xco_data_element DEFINITION
 ENDCLASS.
 
 
-CLASS z_xco_data_element IMPLEMENTATION.
+CLASS z_xco_ddic_data_element IMPLEMENTATION.
 
   METHOD create_or_update_instance.
 
