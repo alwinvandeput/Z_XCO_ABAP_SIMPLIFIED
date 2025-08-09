@@ -41,7 +41,7 @@ CLASS z_xco_ddic_data_element DEFINITION
     CONSTANTS:
       BEGIN OF cs_type_category,
         built_in_type TYPE tv_type_category VALUE 'BUILT_IN_TYPE',
-        domain          TYPE tv_type_category VALUE 'DOMAIN',
+        domain        TYPE tv_type_category VALUE 'DOMAIN',
 
         "TODO:
 *        CLASS_REF           TYPE tv_category VALUE 'CLASS_REF',
@@ -67,7 +67,7 @@ CLASS z_xco_ddic_data_element DEFINITION
         type_category     TYPE tv_type_category,
         built_in_type     TYPE ts_built_in_type,
 
-        domain_name       TYPE z_ddic_xco_domain=>tv_domain_name,
+        domain_name       TYPE z_xco_ddic_domain=>tv_domain_name,
       END OF ts_data.
 
     TYPES:
