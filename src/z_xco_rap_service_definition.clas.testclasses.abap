@@ -4,9 +4,6 @@ CLASS ltcl_unit_test DEFINITION FINAL FOR TESTING
 
   PRIVATE SECTION.
 
-    METHODS get_data.
-      "FOR TESTING.
-
     METHODS create
       FOR TESTING
       RAISING cx_static_check.
@@ -42,30 +39,5 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD get_data.
-
-**    DATA(lo_object) = xco_cp_abap_repository=>object->for(
-**        iv_type   = 'SRVD'
-**        iv_name   = 'ZSDUI_SALESORDER_O4TP' ).
-**
-**
-**    DATA(lo_ddls_object) = xco_cp_abap_repository=>object->for(
-**        iv_type   = 'DDLS'
-**        iv_name   = 'ZSDR_SLSORDERTP' ).
-*
-*    DATA(lo_service_binding) = xco_cp_abap_repository=>object->srvd->for( 'ZSDUI_SALESORDER_O4TP' ).
-*    DATA(ls_srvb_content) = lo_service_binding->content( )->get( ).
-*    DATA(lt_services) = lo_service_binding->services->all->get( ).
-*    LOOP AT lt_services
-*      ASSIGNING FIELD-SYMBOL(<ls_service>).
-*
-*      DATA(lo_text) = <ls_service>->if_xco_printable~get_text( ).
-*
-*    ENDLOOP.
-*
-
-
-
-  ENDMETHOD.
 
 ENDCLASS.
