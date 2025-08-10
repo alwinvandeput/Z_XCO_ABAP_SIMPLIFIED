@@ -26,6 +26,10 @@ CLASS z_xco_abap_class DEFINITION
     TYPES:
       BEGIN OF ts_class,
         name                   TYPE sxco_ao_object_name,
+
+        final                  TYPE abap_bool,
+        abstract               TYPE abap_bool,
+
         interfaces             TYPE tt_interfaces,
         public_section         TYPE ts_section,
         protected_section      TYPE ts_section,
@@ -137,7 +141,7 @@ CLASS z_xco_abap_class IMPLEMENTATION.
       is_section = is_section
       io_section = io_section ).
 
-    "TODO
+    "TODO: Definition - Section
 *    io_section->add_constant( ).
 *    io_section->add_class_data( )
 *    io_section->add_data( ).
@@ -234,12 +238,16 @@ CLASS z_xco_abap_class IMPLEMENTATION.
 
   METHOD _set_class_definition.
 
+    io_definition->set_final( is_create_class-final ).
+    io_definition->set_abstract( is_create_class-abstract ).
+
     "Interfaces
     LOOP AT is_create_class-interfaces
       ASSIGNING FIELD-SYMBOL(<ls_inteface>).
       io_definition->add_interface( <ls_inteface>-name  ).
     ENDLOOP.
 
+    "Sections (public, protected, private)
     _set_section(
       is_section = is_create_class-public_section
       io_section = io_definition->section-public ).
@@ -254,6 +262,8 @@ CLASS z_xco_abap_class IMPLEMENTATION.
 
 
   METHOD _set_class_implementation.
+
+  "TODO: implementation
 
   ENDMETHOD.
 
