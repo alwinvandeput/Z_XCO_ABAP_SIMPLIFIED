@@ -46,26 +46,6 @@ CLASS z_xco_ddic_domain DEFINITION
         char TYPE tv_data_type VALUE 'CHAR',
         dec  TYPE tv_data_type VALUE 'DEC',
 
-*    DATA:
-*      int1       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      int2       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      int4       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      int8       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      decfloat16 TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      df16_raw   TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      decfloat34 TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      df34_raw   TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      fltp       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      datn       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      dats       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      timn       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      tims       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      accp       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      utclong    TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      clnt       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      lang       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      geom_ewkb  TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      cuky       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY.
 
       END OF cs_data_type.
 
@@ -189,25 +169,6 @@ CLASS z_xco_ddic_domain IMPLEMENTATION.
       iv_data_type     = is_create-domain_data-built_in_type-type
       iv_length        = is_create-domain_data-built_in_type-length
       iv_decimals      = is_create-domain_data-built_in_type-decimals ).
-
-    CASE is_create-domain_data-built_in_type-type.
-
-      WHEN cs_data_type-dec.
-        lo_domain_format = xco_cp_abap_dictionary=>built_in_type->dec(
-           iv_length   = is_create-domain_data-built_in_type-length
-           iv_decimals = is_create-domain_data-built_in_type-decimals ).
-
-      WHEN cs_data_type-char.
-        lo_domain_format = xco_cp_abap_dictionary=>built_in_type->char(
-          iv_length = is_create-domain_data-built_in_type-length ).
-
-      WHEN OTHERS.
-
-        " TODO: implement other data types
-        ASSERT 1 = 0.
-        " lo_domain_format = xco_cp_abap_dictionary=>built_in_type->???
-
-    ENDCASE.
 
     lo_specification->set_format( lo_domain_format ).
 

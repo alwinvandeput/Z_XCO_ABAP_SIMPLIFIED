@@ -6,37 +6,6 @@ CLASS z_xco_ddic_data_element DEFINITION
 
     TYPES tv_data_element_name TYPE c LENGTH 30.
 
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    "TODO: verplaatsen naar een generieke klasse ZZAP_DDIC_DATA_TYPE
-    TYPES tv_data_type TYPE c LENGTH 4.
-    CONSTANTS:
-      BEGIN OF cs_data_type,
-        char TYPE tv_data_type VALUE 'CHAR',
-        dec  TYPE tv_data_type VALUE 'DEC',
-
-*    DATA:
-*      int1       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      int2       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      int4       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      int8       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      decfloat16 TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      df16_raw   TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      decfloat34 TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      df34_raw   TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      fltp       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      datn       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      dats       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      timn       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      tims       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      accp       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      utclong    TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      clnt       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      lang       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      geom_ewkb  TYPE REF TO cl_xco_ad_built_in_type READ-ONLY,
-*      cuky       TYPE REF TO cl_xco_ad_built_in_type READ-ONLY.
-
-      END OF cs_data_type.
-
     TYPES tv_type_category TYPE c LENGTH 20.
     CONSTANTS:
       BEGIN OF cs_type_category,

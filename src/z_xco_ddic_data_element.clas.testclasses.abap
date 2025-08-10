@@ -51,7 +51,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
         type_category = z_xco_ddic_data_element=>cs_type_category-built_in_type
         built_in_type     = VALUE #(
-          type     = z_xco_ddic_data_element=>cs_data_type-char
+          type     = z_xco_built_in_type_factory=>cs_data_type-character
           length   = 25
           decimals = 0 ) )
     ) ).
