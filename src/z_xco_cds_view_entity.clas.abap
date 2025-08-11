@@ -5,6 +5,8 @@ CLASS z_xco_cds_view_entity DEFINITION
 
   PUBLIC SECTION.
 
+    TYPES tv_dummy TYPE c LENGTH 40.
+
     TYPES tv_data_definition_type TYPE c LENGTH 20.
 
     TYPES tv_value_item_type TYPE c LENGTH 20.
@@ -37,20 +39,6 @@ CLASS z_xco_cds_view_entity DEFINITION
       END OF ts_select_data.
 
     TYPES:
-      BEGIN OF ts_value_item,
-        type  TYPE tv_value_item_type,
-        value TYPE string,
-      END OF ts_value_item,
-      tt_value_items TYPE STANDARD TABLE OF ts_value_item WITH EMPTY KEY.
-
-    TYPES:
-      BEGIN OF ts_annotation,
-        name        TYPE sxco_cds_ann_property,
-        value_items TYPE tt_value_items,
-      END OF ts_annotation,
-      tt_annotations TYPE STANDARD TABLE OF ts_annotation WITH EMPTY KEY.
-
-    TYPES:
       BEGIN OF ts_data_source,
         name       TYPE sxco_cds_object_name,
         alias_name TYPE sxco_ddef_alias_name,
@@ -61,7 +49,7 @@ CLASS z_xco_cds_view_entity DEFINITION
         key_indicator TYPE abap_boolean,
         name          TYPE sxco_cds_field_name,
         alias_name    TYPE sxco_ddef_alias_name,
-        annotations   TYPE tt_annotations,
+        annotations   TYPE z_xco_annotation_converter=>tt_annotations,
       END OF ts_field,
       tt_fields TYPE STANDARD TABLE OF ts_field WITH EMPTY KEY.
 
@@ -99,7 +87,7 @@ CLASS z_xco_cds_view_entity DEFINITION
       BEGIN OF ts_data,
         name                 TYPE sxco_cds_object_name,
         short_description    TYPE sxco_ar_short_description,
-        annotations          TYPE tt_annotations,
+        annotations          TYPE z_xco_annotation_converter=>tt_annotations,
 
 *        data_definition_type TYPE tv_data_definition_type,
 
@@ -125,19 +113,6 @@ CLASS z_xco_cds_view_entity DEFINITION
       BEGIN OF cs_data_definition_type,
         view_entity TYPE tv_data_definition_type VALUE 'VIEW_ENTITY',
       END OF cs_data_definition_type.
-
-    CONSTANTS:
-      BEGIN OF cs_value_item_type,
-        begin_array   TYPE tv_value_item_type VALUE 'BEGIN_ARRAY',
-        end_array     TYPE tv_value_item_type VALUE 'END_ARRAY',
-        begin_record  TYPE tv_value_item_type VALUE 'BEGIN_RECORD',
-        end_record    TYPE tv_value_item_type VALUE 'END_RECORD',
-        enum_value    TYPE tv_value_item_type VALUE 'ENUM_VALUE',
-        boolean_value TYPE tv_value_item_type VALUE 'BOOLEAN_VALUE',
-        number_value  TYPE tv_value_item_type VALUE 'NUMBER_VALUE',
-        string_value  TYPE tv_value_item_type VALUE 'STRING_VALUE',
-      END OF cs_value_item_type.
-
 
     CONSTANTS:
       BEGIN OF cs_condition_type,
@@ -232,7 +207,7 @@ CLASS z_xco_cds_view_entity DEFINITION
     "Create
 
     CLASS-METHODS _set_annotations
-      IMPORTING it_annotations       TYPE tt_annotations
+      IMPORTING it_annotations       TYPE z_xco_annotation_converter=>tt_annotations
                 io_annotation_target TYPE REF TO if_xco_gen_cds_s_fo_ann_target.
 
     CLASS-METHODS _set_compositions
@@ -341,7 +316,7 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
 
     DATA(lo_content) = lo_view_entity->content( ).
 
-    data(rt_name_list) = lo_content->get_name_list( ).
+    DATA(rt_name_list) = lo_content->get_name_list( ).
 
     DATA(ls_content) = lo_content->get( ).
 
@@ -409,66 +384,9 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
 
   METHOD _set_annotations.
 
-    LOOP AT it_annotations
-      ASSIGNING FIELD-SYMBOL(<ls_annotation>).
-
-      DATA(lo_annotation) = io_annotation_target->add_annotation( <ls_annotation>-name ).
-
-      DATA(lo_build) = lo_annotation->value->build( ).
-
-      LOOP AT <ls_annotation>-value_items
-        ASSIGNING FIELD-SYMBOL(<lv_value_item>).
-
-        CASE <lv_value_item>-type.
-
-          WHEN cs_value_item_type-begin_array.
-
-            lo_build->begin_array( ).
-
-          WHEN cs_value_item_type-end_array.
-
-            lo_build->end_array( ).
-
-          WHEN cs_value_item_type-begin_record.
-
-            lo_build->begin_record( ).
-
-          WHEN cs_value_item_type-end_record.
-
-            lo_build->end_record( ).
-
-          WHEN cs_value_item_type-enum_value.
-
-            lo_build->add_enum( <lv_value_item>-value ).
-
-          WHEN cs_value_item_type-boolean_value.
-
-            DATA(lv_boolean_value) = COND abap_boolean(
-              WHEN <lv_value_item>-value = 'true' THEN abap_true
-              WHEN <lv_value_item>-value = 'false' THEN abap_false ).
-            lo_build->add_boolean( lv_boolean_value ).
-
-          WHEN cs_value_item_type-number_value.
-
-            DATA(lv_number_value) = CONV decfloat34( <lv_value_item>-value ).
-            lo_build->add_number( lv_number_value ).
-
-          WHEN cs_value_item_type-string_value.
-            "String
-
-            "TODO: can a string contain ' itself?
-            DATA(lv_string_value) = <lv_value_item>-value.
-            REPLACE ALL OCCURRENCES OF |'| IN lv_string_value WITH ||.
-            lo_build->add_string( lv_string_value ).
-
-          WHEN OTHERS.
-            ASSERT 1 = 0.
-
-        ENDCASE.
-
-      ENDLOOP.
-
-    ENDLOOP.
+    NEW z_xco_annotation_converter( )->convert_annotations(
+      it_annotations       = it_annotations
+      io_annotation_target = io_annotation_target ).
 
   ENDMETHOD.
 

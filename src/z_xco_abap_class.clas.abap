@@ -5,7 +5,7 @@ CLASS z_xco_abap_class DEFINITION
 
   PUBLIC SECTION.
 
-    TYPES tv_data_type_category TYPE c LENGTH 10.
+    TYPES tv_parm_data_type_category TYPE c LENGTH 10.
 
     TYPES:
       BEGIN OF ts_interface,
@@ -29,7 +29,7 @@ CLASS z_xco_abap_class DEFINITION
     TYPES:
       BEGIN OF ts_method_parameter,
         name           TYPE sxco_ao_subcomponent_name,
-        type_category  TYPE tv_data_type_category,
+        type_category  TYPE tv_parm_data_type_category,
         type_name      TYPE string,
         interface_name TYPE sxco_ao_object_name,
         class_name     TYPE sxco_ao_object_name,
@@ -102,9 +102,9 @@ CLASS z_xco_abap_class DEFINITION
 
     CONSTANTS:
       BEGIN OF cs_data_type_category,
-        type      TYPE tv_data_type_category VALUE 'TYPE',
-        interface TYPE tv_data_type_category VALUE 'INTERFACE',
-        class     TYPE tv_data_type_category VALUE 'CLASS',
+        type      TYPE tv_parm_data_type_category VALUE 'TYPE',
+        interface TYPE tv_parm_data_type_category VALUE 'INTERFACE',
+        class     TYPE tv_parm_data_type_category VALUE 'CLASS',
       END OF cs_data_type_category.
 
     CLASS-METHODS create_or_update_instance

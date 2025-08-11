@@ -20,6 +20,8 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
   METHOD create_cds_view_1.
 
+  DATA(lc_type) = z_xco_annotation_converter=>cs_value_item_type.
+
     DATA(ls_create_cds_view_data) = VALUE z_xco_cds_view_entity=>ts_create(
       transport_request = 'TRLK920710'
       package           = 'ZXCO_UNIT_TEST'
@@ -29,26 +31,26 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
         annotations = VALUE #(
           ( name = 'AccessControl.authorizationCheck' value_items = VALUE #(
-            ( type =  z_xco_cds_view_entity=>cs_value_item_type-enum_value
-              value = |NOT_REQUIRED| ) ) )
+            ( type    =  lc_type-enum_value
+              value   = |NOT_REQUIRED| ) ) )
           ( name = 'Metadata.allowExtensions'
             value_items = VALUE #(
-              ( type =  z_xco_cds_view_entity=>cs_value_item_type-boolean_value
+              ( type  =  lc_type-boolean_value
                 value = |true| ) ) )
           ( name = 'EndUserText.label'
             value_items = VALUE #(
-              ( type =  z_xco_cds_view_entity=>cs_value_item_type-string_value
+              ( type  = lc_type-string_value
                 value = |Sales Order| ) ) )
           ( name = 'ObjectModel.semanticKey'
             value_items = VALUE #(
-              ( type = z_xco_cds_view_entity=>cs_value_item_type-begin_array )
-              ( type =  z_xco_cds_view_entity=>cs_value_item_type-string_value
+              ( type  = lc_type-begin_array )
+              ( type  = lc_type-string_value
                 value = |SalesOrderNo| )
-              ( type = z_xco_cds_view_entity=>cs_value_item_type-end_array )
+              ( type  = lc_type-end_array )
           ) )
           ( name = 'ObjectModel.sapObjectNodeType.name'
              value_items = VALUE #(
-              ( type =  z_xco_cds_view_entity=>cs_value_item_type-string_value value = |ZSDSalesOrder000TP| ) ) )
+              ( type  =  lc_type-string_value value = |ZSDSalesOrder000TP| ) ) )
         )
 
         root_indicator = abap_true
@@ -93,9 +95,9 @@ CLASS ltcl_unit_test IMPLEMENTATION.
             alias_name = 'SalesOrderType'
             annotations = VALUE #(
               ( name = 'ObjectModel.text.element' value_items = VALUE #(
-                ( type = z_xco_cds_view_entity=>cs_value_item_type-begin_array )
-                ( type = z_xco_cds_view_entity=>cs_value_item_type-string_value value = |SalesOrderTypeDescr| )
-                ( type = z_xco_cds_view_entity=>cs_value_item_type-end_array )
+                ( type = lc_type-begin_array )
+                ( type = lc_type-string_value value = |SalesOrderTypeDescr| )
+                ( type = lc_type-end_array )
               ) )
             )
           )
