@@ -34,7 +34,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
         name              = 'ZXCO_UT_DOMAIN_1'
         short_description = 'Unit Test Domain 1'
         built_in_type     = VALUE #(
-          type     = z_xco_built_in_type_factory=>cs_data_type-character
+          type     = z_xco_ddic_built_in_type_fct=>cs_data_type-character
           length   = 25
           decimals = 0 )
         case_sensitive    = abap_false
@@ -51,7 +51,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
         name              = 'ZXCO_UT_DOMAIN_2'
         short_description = 'Unit Test Domain 2'
         built_in_type     = VALUE #(
-          type     = z_xco_built_in_type_factory=>cs_data_type-character
+          type     = z_xco_ddic_built_in_type_fct=>cs_data_type-character
           length   = 8
           decimals = 0 )
         case_sensitive    = abap_false
@@ -74,7 +74,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
         name              = 'ZXCO_UT_DOMAIN_3'
         short_description = 'Unit Test Domain 3'
         built_in_type     = VALUE #(
-          type     = z_xco_built_in_type_factory=>cs_data_type-character
+          type     = z_xco_ddic_built_in_type_fct=>cs_data_type-character
           length   = 26
           decimals = 0 )
         case_sensitive    = abap_true

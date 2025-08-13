@@ -1,9 +1,11 @@
 CLASS z_xco_cds_view_entity DEFINITION
+  INHERITING FROM z_xco_cds_view_abstract
   PUBLIC
-  FINAL
   CREATE PUBLIC .
 
   PUBLIC SECTION.
+
+    TYPES tv_cds_object_name TYPE sxco_cds_object_name.
 
     TYPES tv_dummy TYPE c LENGTH 40.
 
@@ -40,7 +42,8 @@ CLASS z_xco_cds_view_entity DEFINITION
 
     TYPES:
       BEGIN OF ts_data_source,
-        name       TYPE sxco_cds_object_name,
+        type       TYPE sxco_ar_object_type,
+        name       TYPE tv_cds_view_name,
         alias_name TYPE sxco_ddef_alias_name,
       END OF ts_data_source.
 
@@ -49,7 +52,7 @@ CLASS z_xco_cds_view_entity DEFINITION
         key_indicator TYPE abap_boolean,
         name          TYPE sxco_cds_field_name,
         alias_name    TYPE sxco_ddef_alias_name,
-        annotations   TYPE z_xco_annotation_converter=>tt_annotations,
+        annotations   TYPE z_xco_cds_annotation_converter=>tt_annotations,
       END OF ts_field,
       tt_fields TYPE STANDARD TABLE OF ts_field WITH EMPTY KEY.
 
@@ -68,7 +71,7 @@ CLASS z_xco_cds_view_entity DEFINITION
 
     TYPES:
       BEGIN OF ts_composition,
-        entity_name TYPE sxco_cds_object_name,
+        entity_name TYPE tv_cds_view_name,
         alias_name  TYPE sxco_ddef_alias_name,
         cardinality TYPE ts_cardinality,
       END OF ts_composition,
@@ -76,7 +79,7 @@ CLASS z_xco_cds_view_entity DEFINITION
 
     TYPES:
       BEGIN OF ts_association,
-        entity_name    TYPE sxco_cds_object_name,
+        entity_name    TYPE tv_cds_view_name,
         alias_name     TYPE sxco_ddef_alias_name,
         cardinality    TYPE ts_cardinality,
         condition_text TYPE string,
@@ -85,13 +88,14 @@ CLASS z_xco_cds_view_entity DEFINITION
 
     TYPES:
       BEGIN OF ts_data,
-        name                 TYPE sxco_cds_object_name,
+        name                 TYPE tv_cds_view_name,
         short_description    TYPE sxco_ar_short_description,
-        annotations          TYPE z_xco_annotation_converter=>tt_annotations,
+        annotations          TYPE z_xco_cds_annotation_converter=>tt_annotations,
 
 *        data_definition_type TYPE tv_data_definition_type,
 
         root_indicator       TYPE abap_boolean,
+
 
         data_source          TYPE ts_data_source,
         compositions         TYPE tt_compositions,
@@ -141,9 +145,14 @@ CLASS z_xco_cds_view_entity DEFINITION
       IMPORTING is_create          TYPE ts_create
       RETURNING VALUE(ro_cds_view) TYPE REF TO z_xco_cds_view_entity.
 
+    CLASS-METHODS get_instance
+      IMPORTING iv_cds_view_name   TYPE tv_cds_view_name
+      RETURNING VALUE(ro_cds_view) TYPE REF TO z_xco_cds_view_entity.
+
     METHODS get_data
       IMPORTING is_select_data TYPE ts_select_data OPTIONAL
       RETURNING VALUE(rs_data) TYPE ts_data.
+    METHODS: get_key REDEFINITION.
 
   PROTECTED SECTION.
 
@@ -159,9 +168,9 @@ CLASS z_xco_cds_view_entity DEFINITION
       END OF ts_object_key,
       tt_object_keys TYPE STANDARD TABLE OF ts_object_key WITH EMPTY KEY.
 
-    DATA gv_ddls_name TYPE sxco_cds_object_name.
+    DATA gv_cds_view_name TYPE tv_cds_view_name.
 
-    METHODS _get_underlying_object
+    METHODS _get_data_source_object
       IMPORTING is_data_source              TYPE if_xco_cds_view_entity_content=>ts_content-data_source
       RETURNING VALUE(rs_underlying_object) TYPE ts_data_source.
 
@@ -179,12 +188,9 @@ CLASS z_xco_cds_view_entity DEFINITION
       RETURNING VALUE(rt_fields) TYPE tt_fields.
 
     METHODS _get_metadata_extension
-      IMPORTING iv_cds_view_name TYPE sxco_cds_object_name.
+      IMPORTING iv_cds_view_name TYPE tv_cds_view_name.
 
-    " TODO: move to generic zzap_xco_repository_object - class
-    METHODS _get_object_type
-      IMPORTING iv_object_name        TYPE sxco_cds_object_name
-      RETURNING VALUE(rv_object_type) TYPE sxco_ar_object_type.
+
 
     METHODS _get_condition_lines
       IMPORTING iv_condition_string       TYPE string
@@ -195,7 +201,7 @@ CLASS z_xco_cds_view_entity DEFINITION
       RETURNING VALUE(rt_tokens) TYPE string_table.
 
     METHODS _set_metadata_extension
-      IMPORTING iv_cds_view_name TYPE sxco_cds_object_name.
+      IMPORTING iv_cds_view_name TYPE tv_cds_view_name.
 
     METHODS _get_cardinality
       IMPORTING
@@ -207,7 +213,7 @@ CLASS z_xco_cds_view_entity DEFINITION
     "Create
 
     CLASS-METHODS _set_annotations
-      IMPORTING it_annotations       TYPE z_xco_annotation_converter=>tt_annotations
+      IMPORTING it_annotations       TYPE z_xco_cds_annotation_converter=>tt_annotations
                 io_annotation_target TYPE REF TO if_xco_gen_cds_s_fo_ann_target.
 
     CLASS-METHODS _set_compositions
@@ -268,6 +274,16 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
       lo_cds_data_definition->set_root( ).
     ENDIF.
 
+*    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+*    " Projection View
+*    IF is_create-cds_view_data-projection_view_ind = abap_true.
+*      DATA(lo_projection_view) = lo_specification->add_projection_view( ).
+*
+*      IF is_create-cds_view_data-provider_contract IS NOT INITIAL.
+*        lo_projection_view->set_provider_contract( is_create-cds_view_data-provider_contract ).
+*      ENDIF.
+*    ENDIF.
+
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     " Set Data Source - Main Source
     lo_cds_data_definition->data_source->set_view_entity( is_create-cds_view_data-data_source-name ).
@@ -303,24 +319,26 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     " Return Data Definition Instance
     ro_cds_view = NEW #( ).
-    ro_cds_view->gv_ddls_name = is_create-cds_view_data-name.
+    ro_cds_view->gv_cds_view_name = is_create-cds_view_data-name.
+
+  ENDMETHOD.
+
+
+  METHOD get_instance.
+
+    ro_cds_view = NEW #( ).
+    ro_cds_view->gv_cds_view_name = iv_cds_view_name.
 
   ENDMETHOD.
 
 
   METHOD get_data.
 
-    DATA(lo_view_entity) = xco_cp_cds=>view_entity( gv_ddls_name ).
+    DATA(lo_view_entity) = xco_cp_cds=>view_entity( gv_cds_view_name ).
 
-    DATA(lo_data_definition) = lo_view_entity->get_data_definition( ).
 
     DATA(lo_content) = lo_view_entity->content( ).
-
-    DATA(rt_name_list) = lo_content->get_name_list( ).
-
     DATA(ls_content) = lo_content->get( ).
-
-    DATA(ls_data_source) = ls_content-data_source.
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     " Get Annotations
@@ -337,12 +355,16 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
       rs_data-root_indicator    = ls_content-root_indicator.
     ENDIF.
 
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    " Annotations
+    "TODO: how can annotations be read?
+
 *    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 *    " Underlying Object
     IF is_select_data IS INITIAL OR
        is_select_data-underlying_object = abap_true.
-      rs_data-data_source = _get_underlying_object(
-        is_data_source = ls_data_source ).
+      rs_data-data_source = _get_data_source_object(
+        is_data_source = ls_content-data_source ).
     ENDIF.
 
 *    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -366,10 +388,12 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     " Where - TODO: can it have more than one line?
-    DATA(lo_lines) = ls_content-where->if_xco_text~get_lines( ).
-    DATA(lo_line) = lo_lines->get( 1 ).
-    DATA(lv_line) = CAST if_xco_string( lo_line ).
-    rs_data-where_condition_text = lv_line->value.
+    IF ls_content-where IS NOT INITIAL.
+      DATA(lo_lines) = ls_content-where->if_xco_text~get_lines( ).
+      DATA(lo_line) = lo_lines->get( 1 ).
+      DATA(lv_line) = CAST if_xco_string( lo_line ).
+      rs_data-where_condition_text = lv_line->value.
+    ENDIF.
 
 *    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 *    " Metadata Extension
@@ -384,7 +408,7 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
 
   METHOD _set_annotations.
 
-    NEW z_xco_annotation_converter( )->convert_annotations(
+    NEW z_xco_cds_annotation_converter( )->convert_annotations(
       it_annotations       = it_annotations
       io_annotation_target = io_annotation_target ).
 
@@ -492,19 +516,11 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD _get_underlying_object.
+  METHOD _get_data_source_object.
 
-*    rs_underlying_object-type = _get_object_type( is_data_source-view_entity ).
+    rs_underlying_object-type = _get_object_type( is_data_source-view_entity ).
     rs_underlying_object-name = is_data_source-view_entity.
     rs_underlying_object-alias_name = is_data_source-alias.
-
-*    IF rs_underlying_object-type = 'TABL'.
-*      rs_underlying_object-name = to_upper( rs_underlying_object-name ).
-*    ENDIF.
-*
-*    IF rs_underlying_object-type = 'DDLS' AND
-*       rs_underlying_object-name IS NOT INITIAL.
-*    ENDIF.
 
   ENDMETHOD.
 
@@ -1007,53 +1023,6 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD _get_object_type.
-
-*    DATA(lo_software_component_filter) = xco_cp_system=>software_component->get_filter(
-*      io_constraint = xco_cp_abap_sql=>constraint->equal( 'ZLOCAL' ) ).
-
-    DATA(lo_name_filter) = xco_cp_abap_repository=>object_name->get_filter(
-      xco_cp_abap_sql=>constraint->equal( to_upper( iv_object_name ) ) ).
-
-    DATA(lt_objects) = xco_cp_abap_repository=>objects->where( VALUE #(
-*      ( lo_software_component_filter )
-      ( lo_name_filter ) )
-    )->in( xco_cp_abap=>repository )->get( ).
-
-    DATA lo_object TYPE REF TO if_xco_ar_object.
-
-    TYPES:
-      BEGIN OF ts_output_object,
-        object_type TYPE sxco_ar_object_type,
-        object_name TYPE sxco_ar_object_name,
-        namespace   TYPE if_xco_ar_object=>tv_namespace,
-        package     TYPE sxco_package,
-      END OF ts_output_object.
-    DATA lt_output_objects TYPE STANDARD TABLE OF ts_output_object WITH EMPTY KEY.
-
-    LOOP AT lt_objects INTO lo_object.
-      APPEND
-        VALUE #(
-          object_type = lo_object->type->value
-          object_name = lo_object->name->value
-          namespace   = lo_object->get_namespace( )
-          package     = lo_object->get_package( )->name )
-        TO lt_output_objects.
-    ENDLOOP.
-
-    SORT lt_output_objects BY object_type
-                              object_name.
-    LOOP AT lt_output_objects ASSIGNING FIELD-SYMBOL(<ls_output_object>).
-      IF <ls_output_object>-object_type = 'DDLS'.
-        rv_object_type = 'DDLS'.
-        RETURN.
-      ELSEIF <ls_output_object>-object_type = 'TABL'.
-        rv_object_type = 'TABL'.
-        RETURN.
-      ENDIF.
-    ENDLOOP.
-
-  ENDMETHOD.
 
 
   METHOD _get_cardinality.
@@ -1062,6 +1031,15 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
        is_cardinality-max = 2147483647.
       co_cardinality = xco_cp_cds=>cardinality->zero_to_n.
     ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD get_key.
+
+    rs_key = VALUE #(
+      type = 'DDLS'
+      name = gv_cds_view_name ).
 
   ENDMETHOD.
 

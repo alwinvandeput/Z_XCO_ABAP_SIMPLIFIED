@@ -17,7 +17,7 @@ CLASS z_xco_ddic_domain DEFINITION
 
     TYPES:
       BEGIN OF ts_built_in_type,
-        type     TYPE z_xco_built_in_type_factory=>tv_data_type,
+        type     TYPE z_xco_ddic_built_in_type_fct=>tv_data_type,
         length   TYPE cl_xco_ad_built_in_type=>tv_length,
         decimals TYPE cl_xco_ad_built_in_type=>tv_decimals,
       END OF ts_built_in_type.
@@ -165,7 +165,7 @@ CLASS z_xco_ddic_domain IMPLEMENTATION.
     " Type
     DATA lo_domain_format TYPE REF TO if_xco_gen_doma_format.
 
-    lo_domain_format = NEW z_xco_built_in_type_factory( )->get_built_in_type(
+    lo_domain_format = NEW z_xco_ddic_built_in_type_fct( )->get_built_in_type(
       iv_data_type     = is_create-domain_data-built_in_type-type
       iv_length        = is_create-domain_data-built_in_type-length
       iv_decimals      = is_create-domain_data-built_in_type-decimals ).

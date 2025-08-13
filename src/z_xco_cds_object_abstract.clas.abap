@@ -1,0 +1,18 @@
+CLASS z_xco_cds_object_abstract DEFINITION
+  INHERITING FROM z_xco_repo_object_abstract
+  PUBLIC
+  ABSTRACT
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+
+  PROTECTED SECTION.
+
+  PRIVATE SECTION.
+
+ENDCLASS.
+
+
+CLASS z_xco_cds_object_abstract IMPLEMENTATION.
+
+ENDCLASS.

@@ -4,8 +4,13 @@ CLASS ltcl_unit_test DEFINITION FINAL FOR TESTING
 
   PRIVATE SECTION.
 
-    METHODS create_cds_view_1
+    METHODS get_cds_view_1
       FOR TESTING
+      RAISING cx_static_check.
+
+
+    METHODS create_cds_view_1
+      "FOR TESTING
       RAISING cx_static_check.
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -20,7 +25,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
   METHOD create_cds_view_1.
 
-  DATA(lc_type) = z_xco_annotation_converter=>cs_value_item_type.
+    DATA(lc_type) = z_xco_cds_annotation_converter=>cs_value_item_type.
 
     DATA(ls_create_cds_view_data) = VALUE z_xco_cds_view_entity=>ts_create(
       transport_request = 'TRLK920710'
@@ -175,5 +180,18 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
   ENDMETHOD.
 
+
+  METHOD get_cds_view_1.
+
+    DATA(lo_cds_view_entity) = z_xco_cds_view_entity=>get_instance(
+*      'ZXCO_UT_SalesOrderTP'
+      'ZSDC_SLSORDERTP'
+      ).
+
+    DATA(ls_view_entity_data) = lo_cds_view_entity->get_data( ).
+
+    cl_abap_unit_assert=>assert_not_initial( ls_view_entity_data ).
+
+  ENDMETHOD.
 
 ENDCLASS.

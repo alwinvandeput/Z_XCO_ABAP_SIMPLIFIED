@@ -24,7 +24,7 @@ CLASS z_xco_cds_metadata_extension DEFINITION
     TYPES:
       BEGIN OF ts_field,
         name        TYPE sxco_cds_field_name,
-        annotations TYPE z_xco_annotation_converter=>tt_annotations,
+        annotations TYPE z_xco_cds_annotation_converter=>tt_annotations,
       END OF ts_field,
       tt_fields TYPE STANDARD TABLE OF ts_field WITH EMPTY KEY.
 
@@ -88,7 +88,7 @@ CLASS z_xco_cds_metadata_extension IMPLEMENTATION.
 
       DATA(lo_field) = lo_specification->add_field( <ls_field>-name ).
 
-      NEW z_xco_annotation_converter( )->convert_annotations(
+      NEW z_xco_cds_annotation_converter( )->convert_annotations(
         it_annotations       = <ls_field>-annotations
         io_annotation_target = lo_field ).
 

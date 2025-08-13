@@ -41,7 +41,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
         type_category = z_xco_ddic_data_element=>cs_type_category-built_in_type
         built_in_type     = VALUE #(
-          type     = z_xco_built_in_type_factory=>cs_data_type-character
+          type     = z_xco_ddic_built_in_type_fct=>cs_data_type-character
           length   = 25
           decimals = 0 ) )
     ).
@@ -61,14 +61,14 @@ CLASS ltcl_unit_test IMPLEMENTATION.
             not_null = abap_true
             type_category = z_xco_ddic_database_table=>cs_type_category-built_in_type
             built_in_type = VALUE #(
-              type = z_xco_built_in_type_factory=>cs_data_type-client
+              type = z_xco_ddic_built_in_type_fct=>cs_data_type-client
               length = 3 )
           )
           ( name = 'FIELD_1'
             key_indicator = abap_false
             type_category = z_xco_ddic_database_table=>cs_type_category-built_in_type
             built_in_type = VALUE #(
-              type = z_xco_built_in_type_factory=>cs_data_type-character
+              type = z_xco_ddic_built_in_type_fct=>cs_data_type-character
               length = 10 )
           )
           ( name = 'FIELD_2'
@@ -81,38 +81,38 @@ CLASS ltcl_unit_test IMPLEMENTATION.
             key_indicator = abap_false
             type_category = z_xco_ddic_database_table=>cs_type_category-built_in_type
             built_in_type = VALUE #(
-              type = z_xco_built_in_type_factory=>cs_data_type-number_character
+              type = z_xco_ddic_built_in_type_fct=>cs_data_type-number_character
               length = 5 )
           )
 
-          ( name = 'FIELD_01' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_built_in_type_factory=>cs_data_type-character ) )
-          ( name = 'FIELD_02' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 0 type = z_xco_built_in_type_factory=>cs_data_type-string ) )
-          ( name = 'FIELD_03' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_built_in_type_factory=>cs_data_type-short_string ) )
+          ( name = 'FIELD_01' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_ddic_built_in_type_fct=>cs_data_type-character ) )
+          ( name = 'FIELD_02' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 0 type = z_xco_ddic_built_in_type_fct=>cs_data_type-string ) )
+          ( name = 'FIELD_03' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_ddic_built_in_type_fct=>cs_data_type-short_string ) )
 *          ( name = 'FIELD_04' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 0 type = z_xco_built_in_type_factory=>cs_data_type-long_character ) )
-          ( name = 'FIELD_05' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 1 type = z_xco_built_in_type_factory=>cs_data_type-language ) )
-          ( name = 'FIELD_06' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_built_in_type_factory=>cs_data_type-number_character ) )
-          ( name = 'FIELD_07' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 16 type = z_xco_built_in_type_factory=>cs_data_type-currency  decimals = 2 )
+          ( name = 'FIELD_05' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 1 type = z_xco_ddic_built_in_type_fct=>cs_data_type-language ) )
+          ( name = 'FIELD_06' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_ddic_built_in_type_fct=>cs_data_type-number_character ) )
+          ( name = 'FIELD_07' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 16 type = z_xco_ddic_built_in_type_fct=>cs_data_type-currency  decimals = 2 )
             reference_field = VALUE #( table_name = 'ZXCO_DB_1' field_name = 'FIELD_08' ) )
-          ( name = 'FIELD_08' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_built_in_type_factory=>cs_data_type-currency_key ) )
-          ( name = 'FIELD_09' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_built_in_type_factory=>cs_data_type-quantity   decimals = 2 )
+          ( name = 'FIELD_08' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_ddic_built_in_type_fct=>cs_data_type-currency_key ) )
+          ( name = 'FIELD_09' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_ddic_built_in_type_fct=>cs_data_type-quantity   decimals = 2 )
             reference_field = VALUE #( table_name = 'ZXCO_DB_1' field_name = 'FIELD_10' ) )
-          ( name = 'FIELD_10' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 2 type = z_xco_built_in_type_factory=>cs_data_type-unit ) )
-          ( name = 'FIELD_11' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 8 type = z_xco_built_in_type_factory=>cs_data_type-date ) )
-          ( name = 'FIELD_12' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 6 type = z_xco_built_in_type_factory=>cs_data_type-time ) )
-          ( name = 'FIELD_13' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 6 type = z_xco_built_in_type_factory=>cs_data_type-posting_period_yyyymm ) )
-          ( name = 'FIELD_14' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 16 type = z_xco_built_in_type_factory=>cs_data_type-binary_float decimals = 16 ) )
-          ( name = 'FIELD_15' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 16 type = z_xco_built_in_type_factory=>cs_data_type-binary_float_16 ) )
-          ( name = 'FIELD_16' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 34 type = z_xco_built_in_type_factory=>cs_data_type-binary_float_34 ) )
-          ( name = 'FIELD_17' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 3 type = z_xco_built_in_type_factory=>cs_data_type-integer_1 ) )
-          ( name = 'FIELD_18' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_built_in_type_factory=>cs_data_type-integer_2 ) )
-          ( name = 'FIELD_19' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 10 type = z_xco_built_in_type_factory=>cs_data_type-integer_4 ) )
-          ( name = 'FIELD_20' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 19 type = z_xco_built_in_type_factory=>cs_data_type-integer_8 ) )
-          ( name = 'FIELD_21' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_built_in_type_factory=>cs_data_type-decimals     decimals = 2 ) )
-          ( name = 'FIELD_22' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_built_in_type_factory=>cs_data_type-decimals_16  decimals = 2 ) )
-          ( name = 'FIELD_23' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_built_in_type_factory=>cs_data_type-decimals_34  decimals = 2 ) )
-          ( name = 'FIELD_24' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_built_in_type_factory=>cs_data_type-raw ) )
+          ( name = 'FIELD_10' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 2 type = z_xco_ddic_built_in_type_fct=>cs_data_type-unit ) )
+          ( name = 'FIELD_11' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 8 type = z_xco_ddic_built_in_type_fct=>cs_data_type-date ) )
+          ( name = 'FIELD_12' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 6 type = z_xco_ddic_built_in_type_fct=>cs_data_type-time ) )
+          ( name = 'FIELD_13' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 6 type = z_xco_ddic_built_in_type_fct=>cs_data_type-posting_period_yyyymm ) )
+          ( name = 'FIELD_14' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 16 type = z_xco_ddic_built_in_type_fct=>cs_data_type-binary_float decimals = 16 ) )
+          ( name = 'FIELD_15' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 16 type = z_xco_ddic_built_in_type_fct=>cs_data_type-binary_float_16 ) )
+          ( name = 'FIELD_16' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 34 type = z_xco_ddic_built_in_type_fct=>cs_data_type-binary_float_34 ) )
+          ( name = 'FIELD_17' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 3 type = z_xco_ddic_built_in_type_fct=>cs_data_type-integer_1 ) )
+          ( name = 'FIELD_18' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_ddic_built_in_type_fct=>cs_data_type-integer_2 ) )
+          ( name = 'FIELD_19' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 10 type = z_xco_ddic_built_in_type_fct=>cs_data_type-integer_4 ) )
+          ( name = 'FIELD_20' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 19 type = z_xco_ddic_built_in_type_fct=>cs_data_type-integer_8 ) )
+          ( name = 'FIELD_21' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_ddic_built_in_type_fct=>cs_data_type-decimals     decimals = 2 ) )
+          ( name = 'FIELD_22' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_ddic_built_in_type_fct=>cs_data_type-decimals_16  decimals = 2 ) )
+          ( name = 'FIELD_23' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_ddic_built_in_type_fct=>cs_data_type-decimals_34  decimals = 2 ) )
+          ( name = 'FIELD_24' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 5 type = z_xco_ddic_built_in_type_fct=>cs_data_type-raw ) )
 *          ( name = 'FIELD_25' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 0 type = z_xco_built_in_type_factory=>cs_data_type-long_binary ) )
-          ( name = 'FIELD_26' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 0 type = z_xco_built_in_type_factory=>cs_data_type-rawstring ) )
+          ( name = 'FIELD_26' key_indicator = abap_false type_category = built_in built_in_type = VALUE #( length = 0 type = z_xco_ddic_built_in_type_fct=>cs_data_type-rawstring ) )
 
         )
       )

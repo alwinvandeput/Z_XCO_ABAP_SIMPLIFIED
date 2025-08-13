@@ -1,4 +1,4 @@
-CLASS z_xco_annotation_converter DEFINITION
+CLASS z_xco_cds_annotation_converter DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -48,7 +48,7 @@ ENDCLASS.
 
 
 
-CLASS z_xco_annotation_converter IMPLEMENTATION.
+CLASS z_xco_cds_annotation_converter IMPLEMENTATION.
 
   METHOD convert_annotations.
 

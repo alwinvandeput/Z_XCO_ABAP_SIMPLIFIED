@@ -1,4 +1,4 @@
-CLASS z_xco_built_in_type_factory DEFINITION
+CLASS z_xco_ddic_built_in_type_fct DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -96,7 +96,7 @@ ENDCLASS.
 
 
 
-CLASS z_xco_built_in_type_factory IMPLEMENTATION.
+CLASS z_xco_ddic_built_in_type_fct IMPLEMENTATION.
 
   METHOD get_built_in_type.
 

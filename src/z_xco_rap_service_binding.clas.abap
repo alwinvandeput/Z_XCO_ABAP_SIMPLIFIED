@@ -5,7 +5,7 @@ CLASS z_xco_rap_service_binding DEFINITION
 
   PUBLIC SECTION.
 
-    TYPES tv_service_binding_name TYPE sxco_srvb_object_name.
+    TYPES tv_name TYPE sxco_srvb_object_name.
 
     TYPES:
       BEGIN OF ts_version,
@@ -23,10 +23,10 @@ CLASS z_xco_rap_service_binding DEFINITION
 
     TYPES:
       BEGIN OF ts_data,
-        name         TYPE tv_service_binding_name,
-        description  TYPE if_xco_cp_gen_srvd_s_form=>tv_short_description,
-        binding_type TYPE REF TO cl_xco_srvb_binding_type,
-        services     TYPE tt_services,
+          name         TYPE tv_name,
+          description  TYPE if_xco_cp_gen_srvd_s_form=>tv_short_description,
+          binding_type TYPE REF TO cl_xco_srvb_binding_type,
+        services TYPE tt_services,
       END OF ts_data.
 
     TYPES:
@@ -37,7 +37,7 @@ CLASS z_xco_rap_service_binding DEFINITION
       END OF ts_create.
 
     CLASS-METHODS get_instance
-      IMPORTING iv_service_binding_name   TYPE tv_service_binding_name
+      IMPORTING iv_service_binding_name   TYPE tv_name
       RETURNING VALUE(ro_service_binding) TYPE REF TO z_xco_rap_service_binding.
 
     CLASS-METHODS create_or_update_instance
@@ -54,7 +54,7 @@ CLASS z_xco_rap_service_binding DEFINITION
       IMPORTING
         io_specification TYPE REF TO if_xco_cp_gen_srvd_s_form.
 
-    DATA gv_service_binding_name TYPE tv_service_binding_name.
+    DATA gv_service_binding_name TYPE tv_name.
 
 ENDCLASS.
 

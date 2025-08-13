@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_MSAG" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <T100A>
+    <ARBGB>Z_XCO_SIMPLE_LIB</ARBGB>
+    <MASTERLANG>E</MASTERLANG>
+    <STEXT>XCO Simplified Library</STEXT>
+   </T100A>
+   <T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_XCO_SIMPLE_LIB</ARBGB>
+     <MSGNR>001</MSGNR>
+     <TEXT>Service binding: &amp;1 service: &amp;2, version: &amp;3 not found.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_XCO_SIMPLE_LIB</ARBGB>
+     <MSGNR>002</MSGNR>
+     <TEXT>Root Entity Alias Name &amp;2 not found in Service Definition &amp;1.</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>Z_XCO_SIMPLE_LIB</ARBGB>
+     <MSGNR>003</MSGNR>
+     <TEXT>CDS DDLS Object type &amp;1 is unknown.</TEXT>
+    </T100>
+   </T100>
+  </asx:values>
+ </asx:abap>
+</abapGit>

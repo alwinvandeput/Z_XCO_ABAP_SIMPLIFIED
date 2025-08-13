@@ -15,7 +15,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
   METHOD create_minimal.
 
-    DATA(lc_type) = z_xco_annotation_converter=>cs_value_item_type.
+    DATA(lc_type) = z_xco_cds_annotation_converter=>cs_value_item_type.
 
     DATA(ls_create) = VALUE z_xco_cds_metadata_extension=>ts_create(
       transport_request  = 'TRLK920710'

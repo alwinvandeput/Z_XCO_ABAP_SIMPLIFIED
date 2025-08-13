@@ -23,7 +23,7 @@ CLASS z_xco_ddic_data_element DEFINITION
 
     TYPES:
       BEGIN OF ts_built_in_type,
-        type     TYPE z_xco_built_in_type_factory=>tv_data_type,
+        type     TYPE z_xco_ddic_built_in_type_fct=>tv_data_type,
         length   TYPE cl_xco_ad_built_in_type=>tv_length,
         decimals TYPE cl_xco_ad_built_in_type=>tv_decimals,
       END OF ts_built_in_type.
@@ -89,7 +89,7 @@ CLASS z_xco_ddic_data_element IMPLEMENTATION.
 
         DATA lo_data_element_data_type TYPE REF TO if_xco_gen_dtel_data_type.
 
-        lo_data_element_data_type = NEW z_xco_built_in_type_factory( )->get_built_in_type(
+        lo_data_element_data_type = NEW z_xco_ddic_built_in_type_fct( )->get_built_in_type(
           iv_data_type     = is_create-data_element_data-built_in_type-type
           iv_length        = is_create-data_element_data-built_in_type-length
           iv_decimals      = is_create-data_element_data-built_in_type-decimals ).
