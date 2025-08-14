@@ -1,33 +1,27 @@
-CLASS z_xco_cds_view_abstract DEFINITION
-  INHERITING FROM z_xco_cds_object_abstract
+CLASS z_xco_cds_dd_abstract_object DEFINITION
+  INHERITING FROM z_xco_repo_abstract_object
   PUBLIC
-  abstract
+  ABSTRACT
   CREATE PUBLIC .
 
   PUBLIC SECTION.
 
-   types tv_cds_view_name type sxco_cds_object_name.
+    TYPES tv_cds_object_name TYPE sxco_cds_object_name.
 
   PROTECTED SECTION.
 
-    " TODO: move to generic zzap_xco_repository_object - class
-    METHODS _get_object_type
+    METHODS _get_repository_object_type
       IMPORTING iv_object_name        TYPE sxco_cds_object_name
       RETURNING VALUE(rv_object_type) TYPE sxco_ar_object_type.
 
   PRIVATE SECTION.
+
 ENDCLASS.
 
 
+CLASS z_xco_cds_dd_abstract_object IMPLEMENTATION.
 
-CLASS z_xco_cds_view_abstract IMPLEMENTATION.
-
-
-
-  METHOD _get_object_type.
-
-*    DATA(lo_software_component_filter) = xco_cp_system=>software_component->get_filter(
-*      io_constraint = xco_cp_abap_sql=>constraint->equal( 'ZLOCAL' ) ).
+  METHOD _get_repository_object_type.
 
     DATA(lo_name_filter) = xco_cp_abap_repository=>object_name->get_filter(
       xco_cp_abap_sql=>constraint->equal( to_upper( iv_object_name ) ) ).

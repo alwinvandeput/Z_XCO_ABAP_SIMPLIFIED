@@ -1,15 +1,17 @@
 CLASS z_xco_cds_projection_view DEFINITION
-  INHERITING FROM z_xco_cds_view_abstract
+  INHERITING FROM z_xco_cds_dd_abstract_object
   PUBLIC
   FINAL
   CREATE PUBLIC .
 
   PUBLIC SECTION.
 
+    INTERFACES z_xco_generic_cds_view_if.
+
     TYPES:
       BEGIN OF ts_data_source,
         type       TYPE sxco_ar_object_type,
-        name       TYPE tv_cds_view_name,
+        name       TYPE tv_cds_object_name,
         alias_name TYPE sxco_ddef_alias_name,
       END OF ts_data_source.
 
@@ -26,16 +28,17 @@ CLASS z_xco_cds_projection_view DEFINITION
 
     TYPES:
       BEGIN OF ts_field,
-        key_indicator TYPE abap_bool,
-        name          TYPE sxco_cds_object_name,
-        alias         TYPE sxco_ddef_alias_name,
-        expression    TYPE REF TO if_xco_ddl_expression,
+        key_indicator              TYPE abap_bool,
+        name                       TYPE sxco_cds_object_name,
+        alias                      TYPE sxco_ddef_alias_name,
+        expression                 TYPE REF TO if_xco_ddl_expression,
+        redirected_to_compos_child TYPE sxco_cds_object_name,
       END OF ts_field,
       tt_fields TYPE STANDARD TABLE OF ts_field WITH EMPTY KEY.
 
     TYPES:
       BEGIN OF ts_data,
-        name              TYPE tv_cds_view_name,
+        name              TYPE tv_cds_object_name,
         short_description TYPE sxco_ar_short_description,
 
         annotations       TYPE z_xco_cds_annotation_converter=>tt_annotations,
@@ -49,18 +52,29 @@ CLASS z_xco_cds_projection_view DEFINITION
       END OF ts_data.
 
     CLASS-METHODS get_instance
-      IMPORTING iv_projection_view_name   TYPE tv_cds_view_name
+      IMPORTING iv_projection_view_name   TYPE tv_cds_object_name
       RETURNING VALUE(ro_projection_view) TYPE REF TO z_xco_cds_projection_view.
 
     METHODS get_data
       RETURNING VALUE(rs_data) TYPE ts_data.
+
     METHODS: get_key REDEFINITION.
 
   PROTECTED SECTION.
 
   PRIVATE SECTION.
 
-    DATA gv_projection_view_name TYPE tv_cds_view_name.
+    DATA gv_projection_view_name TYPE tv_cds_object_name.
+
+    METHODS _get_fields
+      IMPORTING io_projection_view TYPE REF TO if_xco_cds_projection_view
+      RETURNING VALUE(rt_fields)   TYPE tt_fields.
+
+    METHODS _get_associations
+      IMPORTING
+        io_projection_view     TYPE REF TO if_xco_cds_projection_view
+      RETURNING
+        VALUE(rt_associations) TYPE tt_associations.
 
 ENDCLASS.
 
@@ -100,60 +114,17 @@ CLASS z_xco_cds_projection_view IMPLEMENTATION.
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     "Data Source
     DATA(ls_data_source) = ls_content-data_source.
-    rs_data-data_source-type = _get_object_type( ls_data_source-view_entity ).
+    rs_data-data_source-type = _get_repository_object_type( ls_data_source-view_entity ).
     rs_data-data_source-name = ls_data_source-view_entity.
     rs_data-data_source-alias_name = ls_data_source-alias.
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     "Associations
-    DATA(lt_read_assocations) = lo_projection_view->associations->all->get( ).
-    LOOP AT lt_read_assocations
-      ASSIGNING FIELD-SYMBOL(<lo_read_association>).
-
-      APPEND
-        VALUE #(
-          name = <lo_read_association>->entity->name )
-        TO rs_data-associations
-        ASSIGNING FIELD-SYMBOL(<ls_target_association>).
-
-      DATA(ls_association_content) = <lo_read_association>->content( )->get( ).
-
-      <ls_target_association>-alias_name = ls_association_content-alias.
-      <ls_target_association>-cardinality = ls_association_content-cardinality.
-      <ls_target_association>-condition = ls_association_content-condition.
-      <ls_target_association>-target = ls_association_content-target.
-      <ls_target_association>-to_parent_indicator = ls_association_content-to_parent_indicator.
-
-    ENDLOOP.
+    rs_data-associations = _get_associations( lo_projection_view ).
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     "Associations
-    DATA(lt_fields) = lo_projection_view->fields->all->get( ).
-    LOOP AT lt_fields
-      ASSIGNING FIELD-SYMBOL(<lo_field>).
-
-      DATA(ls_field_content) = <lo_field>->content( )->get( ).
-
-      APPEND
-        VALUE #(
-          name = <lo_field>->name )
-        TO rs_data-fields
-        ASSIGNING FIELD-SYMBOL(<ls_target_field>).
-
-      <ls_target_field>-alias = ls_field_content-alias.
-      <ls_target_field>-key_indicator = ls_field_content-key_indicator.
-*ls_field_content-association
-*ls_field_content-composition
-      <ls_target_field>-expression = ls_field_content-expression.
-*ls_field_content-localized_indicator
-*ls_field_content-original_name
-*ls_field_content-redirected_to
-*ls_field_content-redirected_to_compos_child
-*ls_field_content-redirected_to_parent
-*ls_field_content-type
-*ls_field_content-virtual_indicator
-
-    ENDLOOP.
+    rs_data-fields = _get_fields( lo_projection_view ).
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     "Parameters
@@ -169,5 +140,88 @@ CLASS z_xco_cds_projection_view IMPLEMENTATION.
       name = gv_projection_view_name ).
 
   ENDMETHOD.
+
+
+  METHOD _get_fields.
+
+    DATA(lt_fields) = io_projection_view->fields->all->get( ).
+    LOOP AT lt_fields
+      ASSIGNING FIELD-SYMBOL(<lo_field>).
+
+      DATA(ls_field_content) = <lo_field>->content( )->get( ).
+
+      APPEND
+        VALUE #(
+          name = <lo_field>->name )
+        TO rt_fields
+        ASSIGNING FIELD-SYMBOL(<ls_target_field>).
+
+      <ls_target_field>-alias = ls_field_content-alias.
+      <ls_target_field>-key_indicator = ls_field_content-key_indicator.
+*ls_field_content-association
+*ls_field_content-composition
+      <ls_target_field>-expression = ls_field_content-expression.
+
+*ls_field_content-localized_indicator
+*ls_field_content-original_name
+*ls_field_content-redirected_to
+      <ls_target_field>-redirected_to_compos_child = ls_field_content-redirected_to_compos_child.
+*ls_field_content-redirected_to_parent
+*ls_field_content-type
+*ls_field_content-virtual_indicator
+
+
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD _get_associations.
+
+    DATA(lt_read_assocations) = io_projection_view->associations->all->get( ).
+    LOOP AT lt_read_assocations
+      ASSIGNING FIELD-SYMBOL(<lo_read_association>).
+
+      APPEND
+        VALUE #(
+          name = <lo_read_association>->entity->name )
+        TO rt_associations
+        ASSIGNING FIELD-SYMBOL(<ls_target_association>).
+
+      DATA(ls_association_content) = <lo_read_association>->content( )->get( ).
+
+      <ls_target_association>-alias_name = ls_association_content-alias.
+      <ls_target_association>-cardinality = ls_association_content-cardinality.
+      <ls_target_association>-condition = ls_association_content-condition.
+      <ls_target_association>-target = ls_association_content-target.
+      <ls_target_association>-to_parent_indicator = ls_association_content-to_parent_indicator.
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD z_xco_generic_cds_view_if~get_view_abstract_data.
+
+    DATA(ls_data) = get_data( ).
+
+    rs_view_abstract_data = VALUE #(
+      name = ls_data-name
+      data_source = VALUE #(
+        type = ls_data-data_source-type
+        name = ls_data-data_source-name
+        alias_name = ls_data-data_source-alias_name
+      )
+      compositions = VALUE #(
+        FOR <ls_field> IN ls_data-fields
+          WHERE ( redirected_to_compos_child is not initial )
+          (  entity_name     = <ls_field>-redirected_to_compos_child
+             alias_name      = <ls_field>-name
+          )
+      )
+    ).
+
+  ENDMETHOD.
+
 
 ENDCLASS.

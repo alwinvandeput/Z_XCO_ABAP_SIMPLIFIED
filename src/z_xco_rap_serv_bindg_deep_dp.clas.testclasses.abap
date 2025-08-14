@@ -13,7 +13,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
   METHOD deep_read.
 
-    DATA(ls_data) = NEW z_xco_serv_bindg_deep_read_dp(
+    DATA(ls_data) = NEW z_xco_rap_serv_bindg_deep_dp(
       )->deep_read_service_binding(
        iv_service_binding_name      = 'ZSDUI_SALESORDER_O4TP'
        iv_sd_root_entity_alias_name = 'SalesOrder' ).

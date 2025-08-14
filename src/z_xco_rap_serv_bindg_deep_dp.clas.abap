@@ -1,4 +1,4 @@
-CLASS z_xco_serv_bindg_deep_read_dp DEFINITION
+CLASS z_xco_rap_serv_bindg_deep_dp DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -53,7 +53,7 @@ ENDCLASS.
 
 
 
-CLASS z_xco_serv_bindg_deep_read_dp IMPLEMENTATION.
+CLASS z_xco_rap_serv_bindg_deep_dp IMPLEMENTATION.
 
   METHOD deep_read_service_binding.
 

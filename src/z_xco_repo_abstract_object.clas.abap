@@ -1,4 +1,4 @@
-CLASS z_xco_repo_object_abstract DEFINITION
+CLASS z_xco_repo_abstract_object DEFINITION
   PUBLIC
   abstract
   CREATE PUBLIC .
@@ -21,6 +21,6 @@ CLASS z_xco_repo_object_abstract DEFINITION
 ENDCLASS.
 
 
-CLASS z_xco_repo_object_abstract IMPLEMENTATION.
+CLASS z_xco_repo_abstract_object IMPLEMENTATION.
 
 ENDCLASS.

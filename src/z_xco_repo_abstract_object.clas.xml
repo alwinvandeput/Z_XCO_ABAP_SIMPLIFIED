@@ -3,9 +3,9 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>Z_XCO_CDS_OBJECT_ABSTRACT</CLSNAME>
+    <CLSNAME>Z_XCO_REPO_ABSTRACT_OBJECT</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>XCO CDS Object</DESCRIPT>
+    <DESCRIPT>XCO Repository Object</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>

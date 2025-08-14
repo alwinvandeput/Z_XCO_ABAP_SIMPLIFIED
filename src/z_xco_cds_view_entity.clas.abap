@@ -1,11 +1,11 @@
 CLASS z_xco_cds_view_entity DEFINITION
-  INHERITING FROM z_xco_cds_view_abstract
+  INHERITING FROM z_xco_cds_dd_abstract_object
   PUBLIC
   CREATE PUBLIC .
 
   PUBLIC SECTION.
 
-    TYPES tv_cds_object_name TYPE sxco_cds_object_name.
+    INTERFACES z_xco_generic_cds_view_if.
 
     TYPES tv_dummy TYPE c LENGTH 40.
 
@@ -43,7 +43,7 @@ CLASS z_xco_cds_view_entity DEFINITION
     TYPES:
       BEGIN OF ts_data_source,
         type       TYPE sxco_ar_object_type,
-        name       TYPE tv_cds_view_name,
+        name       TYPE tv_cds_object_name,
         alias_name TYPE sxco_ddef_alias_name,
       END OF ts_data_source.
 
@@ -71,7 +71,7 @@ CLASS z_xco_cds_view_entity DEFINITION
 
     TYPES:
       BEGIN OF ts_composition,
-        entity_name TYPE tv_cds_view_name,
+        entity_name TYPE tv_cds_object_name,
         alias_name  TYPE sxco_ddef_alias_name,
         cardinality TYPE ts_cardinality,
       END OF ts_composition,
@@ -79,7 +79,7 @@ CLASS z_xco_cds_view_entity DEFINITION
 
     TYPES:
       BEGIN OF ts_association,
-        entity_name    TYPE tv_cds_view_name,
+        entity_name    TYPE tv_cds_object_name,
         alias_name     TYPE sxco_ddef_alias_name,
         cardinality    TYPE ts_cardinality,
         condition_text TYPE string,
@@ -88,7 +88,7 @@ CLASS z_xco_cds_view_entity DEFINITION
 
     TYPES:
       BEGIN OF ts_data,
-        name                 TYPE tv_cds_view_name,
+        name                 TYPE tv_cds_object_name,
         short_description    TYPE sxco_ar_short_description,
         annotations          TYPE z_xco_cds_annotation_converter=>tt_annotations,
 
@@ -146,12 +146,13 @@ CLASS z_xco_cds_view_entity DEFINITION
       RETURNING VALUE(ro_cds_view) TYPE REF TO z_xco_cds_view_entity.
 
     CLASS-METHODS get_instance
-      IMPORTING iv_cds_view_name   TYPE tv_cds_view_name
+      IMPORTING iv_cds_view_name   TYPE tv_cds_object_name
       RETURNING VALUE(ro_cds_view) TYPE REF TO z_xco_cds_view_entity.
 
     METHODS get_data
       IMPORTING is_select_data TYPE ts_select_data OPTIONAL
       RETURNING VALUE(rs_data) TYPE ts_data.
+
     METHODS: get_key REDEFINITION.
 
   PROTECTED SECTION.
@@ -168,7 +169,7 @@ CLASS z_xco_cds_view_entity DEFINITION
       END OF ts_object_key,
       tt_object_keys TYPE STANDARD TABLE OF ts_object_key WITH EMPTY KEY.
 
-    DATA gv_cds_view_name TYPE tv_cds_view_name.
+    DATA gv_cds_view_name TYPE tv_cds_object_name.
 
     METHODS _get_data_source_object
       IMPORTING is_data_source              TYPE if_xco_cds_view_entity_content=>ts_content-data_source
@@ -188,7 +189,7 @@ CLASS z_xco_cds_view_entity DEFINITION
       RETURNING VALUE(rt_fields) TYPE tt_fields.
 
     METHODS _get_metadata_extension
-      IMPORTING iv_cds_view_name TYPE tv_cds_view_name.
+      IMPORTING iv_cds_view_name TYPE tv_cds_object_name.
 
 
 
@@ -201,7 +202,7 @@ CLASS z_xco_cds_view_entity DEFINITION
       RETURNING VALUE(rt_tokens) TYPE string_table.
 
     METHODS _set_metadata_extension
-      IMPORTING iv_cds_view_name TYPE tv_cds_view_name.
+      IMPORTING iv_cds_view_name TYPE tv_cds_object_name.
 
     METHODS _get_cardinality
       IMPORTING
@@ -518,7 +519,7 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
 
   METHOD _get_data_source_object.
 
-    rs_underlying_object-type = _get_object_type( is_data_source-view_entity ).
+    rs_underlying_object-type = _get_repository_object_type( is_data_source-view_entity ).
     rs_underlying_object-name = is_data_source-view_entity.
     rs_underlying_object-alias_name = is_data_source-alias.
 
@@ -1040,6 +1041,30 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
     rs_key = VALUE #(
       type = 'DDLS'
       name = gv_cds_view_name ).
+
+  ENDMETHOD.
+
+
+  METHOD z_xco_generic_cds_view_if~get_view_abstract_data.
+
+    DATA(ls_data) = get_data( ).
+
+    rs_view_abstract_data = VALUE #(
+      name = ls_data-name
+      data_source = VALUE #(
+        type = ls_data-data_source-type
+        name = ls_data-data_source-name
+        alias_name = ls_data-data_source-alias_name
+      )
+      compositions = value #(
+        for <ls_composition> in ls_data-compositions
+          (  entity_name     = <ls_composition>-entity_name
+             alias_name      = <ls_composition>-alias_name
+             cardinality-min = <ls_composition>-cardinality-min
+             cardinality-max = <ls_composition>-cardinality-max
+          )
+      )
+    ).
 
   ENDMETHOD.
 

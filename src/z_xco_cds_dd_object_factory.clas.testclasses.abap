@@ -13,7 +13,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
   METHOD view_entity.
 
-    DATA(lo_view_entity) = z_xco_cds_object_factory=>get_factory( )->get_cds_object_by_name( 'ZSDR_SLSORDERTP' ).
+    DATA(lo_view_entity) = z_xco_cds_dd_object_factory=>get_factory( )->get_cds_object_by_name( 'ZSDR_SLSORDERTP' ).
 
     IF lo_view_entity IS INSTANCE OF z_xco_cds_view_entity.
     ELSE.
@@ -24,7 +24,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
   METHOD projection_view.
 
-    DATA(lo_view_entity) = z_xco_cds_object_factory=>get_factory( )->get_cds_object_by_name( 'ZSDC_SLSORDERTP' ).
+    DATA(lo_view_entity) = z_xco_cds_dd_object_factory=>get_factory( )->get_cds_object_by_name( 'ZSDC_SLSORDERTP' ).
 
     IF lo_view_entity IS INSTANCE OF z_xco_cds_projection_view.
     ELSE.

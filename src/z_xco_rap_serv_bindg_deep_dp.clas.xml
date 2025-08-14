@@ -3,7 +3,7 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>Z_XCO_SERV_BINDG_DEEP_READ_DP</CLSNAME>
+    <CLSNAME>Z_XCO_RAP_SERV_BINDG_DEEP_DP</CLSNAME>
     <LANGU>E</LANGU>
     <DESCRIPT>XCO Service Binding - Deep Read - Data Provider</DESCRIPT>
     <STATE>1</STATE>

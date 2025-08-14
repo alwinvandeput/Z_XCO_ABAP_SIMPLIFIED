@@ -1,4 +1,4 @@
-CLASS z_xco_cds_object_factory DEFINITION
+CLASS z_xco_cds_dd_object_factory DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -16,11 +16,11 @@ CLASS z_xco_cds_object_factory DEFINITION
       END OF cs_type.
 
     CLASS-METHODS get_factory
-      RETURNING VALUE(ro_factory) TYPE REF TO z_xco_cds_object_factory.
+      RETURNING VALUE(ro_factory) TYPE REF TO z_xco_cds_dd_object_factory.
 
     METHODS get_cds_object_by_name
       IMPORTING iv_name              TYPE sxco_cds_object_name
-      RETURNING VALUE(ro_cds_object) TYPE REF TO z_xco_cds_object_abstract
+      RETURNING VALUE(ro_cds_object) TYPE REF TO z_xco_cds_dd_abstract_object
       RAISING
                 zcx_xco_error.
 
@@ -28,13 +28,13 @@ CLASS z_xco_cds_object_factory DEFINITION
   PROTECTED SECTION.
   PRIVATE SECTION.
 
-    CLASS-DATA go_factory TYPE REF TO z_xco_cds_object_factory.
+    CLASS-DATA go_factory TYPE REF TO z_xco_cds_dd_object_factory.
 
 ENDCLASS.
 
 
 
-CLASS z_xco_cds_object_factory IMPLEMENTATION.
+CLASS z_xco_cds_dd_object_factory IMPLEMENTATION.
 
   METHOD get_factory.
 
