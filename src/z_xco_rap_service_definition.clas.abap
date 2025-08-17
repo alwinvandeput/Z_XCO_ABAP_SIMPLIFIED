@@ -52,7 +52,8 @@ ENDCLASS.
 
 
 
-CLASS z_xco_rap_service_definition IMPLEMENTATION.
+CLASS Z_XCO_RAP_SERVICE_DEFINITION IMPLEMENTATION.
+
 
   METHOD create_or_update_instance.
 
@@ -80,13 +81,6 @@ CLASS z_xco_rap_service_definition IMPLEMENTATION.
 
     ro_service_definition = NEW #( ).
     ro_service_definition->gv_service_definition_name = is_create-service_definition-name.
-
-  ENDMETHOD.
-
-  METHOD get_instance.
-
-    ro_service_definition = NEW #( ).
-    ro_service_definition->gv_service_definition_name = iv_service_definition_name.
 
   ENDMETHOD.
 
@@ -120,6 +114,15 @@ CLASS z_xco_rap_service_definition IMPLEMENTATION.
 
   ENDMETHOD.
 
+
+  METHOD get_instance.
+
+    ro_service_definition = NEW #( ).
+    ro_service_definition->gv_service_definition_name = iv_service_definition_name.
+
+  ENDMETHOD.
+
+
   METHOD set_annotations.
 
 *    "valid as of 2023
@@ -138,5 +141,4 @@ CLASS z_xco_rap_service_definition IMPLEMENTATION.
 *    ENDIF.
 
   ENDMETHOD.
-
 ENDCLASS.

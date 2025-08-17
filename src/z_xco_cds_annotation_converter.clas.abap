@@ -48,7 +48,8 @@ ENDCLASS.
 
 
 
-CLASS z_xco_cds_annotation_converter IMPLEMENTATION.
+CLASS Z_XCO_CDS_ANNOTATION_CONVERTER IMPLEMENTATION.
+
 
   METHOD convert_annotations.
 
@@ -118,5 +119,4 @@ CLASS z_xco_cds_annotation_converter IMPLEMENTATION.
     ENDLOOP.
 
   ENDMETHOD.
-
 ENDCLASS.

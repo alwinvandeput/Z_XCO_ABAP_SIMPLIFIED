@@ -19,7 +19,9 @@ CLASS z_xco_cds_dd_abstract_object DEFINITION
 ENDCLASS.
 
 
-CLASS z_xco_cds_dd_abstract_object IMPLEMENTATION.
+
+CLASS Z_XCO_CDS_DD_ABSTRACT_OBJECT IMPLEMENTATION.
+
 
   METHOD _get_repository_object_type.
 
@@ -65,5 +67,4 @@ CLASS z_xco_cds_dd_abstract_object IMPLEMENTATION.
     ENDLOOP.
 
   ENDMETHOD.
-
 ENDCLASS.

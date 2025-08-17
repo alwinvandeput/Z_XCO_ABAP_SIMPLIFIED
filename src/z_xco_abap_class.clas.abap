@@ -160,7 +160,9 @@ CLASS z_xco_abap_class DEFINITION
 ENDCLASS.
 
 
-CLASS z_xco_abap_class IMPLEMENTATION.
+
+CLASS Z_XCO_ABAP_CLASS IMPLEMENTATION.
+
 
   METHOD create_or_update_instance.
 
@@ -192,6 +194,7 @@ CLASS z_xco_abap_class IMPLEMENTATION.
 
   ENDMETHOD.
 
+
   METHOD _set_class_definition.
 
     io_definition->set_final( is_create_class-final ).
@@ -220,52 +223,14 @@ CLASS z_xco_abap_class IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD _set_section.
 
-    " Types
-    _set_types(
-      is_section = is_section
-      io_section = io_section ).
+  METHOD _set_class_implementation.
 
-    "TODO: Definition - Section
-*    io_section->add_constant( ).
+    LOOP AT is_create_class-method_implementations
+         ASSIGNING FIELD-SYMBOL(<ls_implementation>).
 
-*    io_section->add_class_data( )
-*    io_section->add_data( ).
-
-*    io_section->add_class_method( )
-
-*    io_section->add_method( ).
-    _set_method_definitions(
-      is_section = is_section
-      io_section = io_section ).
-
-*    io_section->add_alias( ).
-
-  ENDMETHOD.
-
-
-  METHOD _set_main_class.
-
-    _set_class_definition(
-      is_create_class = is_create-class-main_class
-      io_definition = io_specification->definition ).
-
-    _set_class_implementation(
-      is_create_class = is_create-class-main_class
-      io_implementation = io_specification->implementation ).
-
-  ENDMETHOD.
-
-
-  METHOD _set_types.
-
-    LOOP AT is_section-types
-      ASSIGNING FIELD-SYMBOL(<ls_type>).
-
-      " Types
-      DATA(lo_type) = io_section->add_type( <ls_type>-name ).
-      lo_type->for( xco_cp_abap=>type-source->for( <ls_type>-source ) ).
+      DATA(lo_method) = io_implementation->add_method( <ls_implementation>-name ).
+      lo_method->set_source( <ls_implementation>-source_lines ).
 
     ENDLOOP.
 
@@ -292,35 +257,15 @@ CLASS z_xco_abap_class IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD _set_test_classes.
+  METHOD _set_main_class.
 
-    LOOP AT it_classes
-      ASSIGNING FIELD-SYMBOL(<ls_test_class>).
+    _set_class_definition(
+      is_create_class = is_create-class-main_class
+      io_definition = io_specification->definition ).
 
-      DATA(lo_class) = io_specification->add_test_class( <ls_test_class>-name ).
-
-      _set_class_definition(
-        is_create_class = <ls_test_class>
-        io_definition = lo_class->definition ).
-
-      _set_class_implementation(
-        is_create_class = <ls_test_class>
-        io_implementation = lo_class->implementation ).
-
-    ENDLOOP.
-
-  ENDMETHOD.
-
-
-  METHOD _set_class_implementation.
-
-    LOOP AT is_create_class-method_implementations
-         ASSIGNING FIELD-SYMBOL(<ls_implementation>).
-
-      DATA(lo_method) = io_implementation->add_method( <ls_implementation>-name ).
-      lo_method->set_source( <ls_implementation>-source_lines ).
-
-    ENDLOOP.
+    _set_class_implementation(
+      is_create_class = is_create-class-main_class
+      io_implementation = io_specification->implementation ).
 
   ENDMETHOD.
 
@@ -364,4 +309,62 @@ CLASS z_xco_abap_class IMPLEMENTATION.
 
   ENDMETHOD.
 
+
+  METHOD _set_section.
+
+    " Types
+    _set_types(
+      is_section = is_section
+      io_section = io_section ).
+
+    "TODO: Definition - Section
+*    io_section->add_constant( ).
+
+*    io_section->add_class_data( )
+*    io_section->add_data( ).
+
+*    io_section->add_class_method( )
+
+*    io_section->add_method( ).
+    _set_method_definitions(
+      is_section = is_section
+      io_section = io_section ).
+
+*    io_section->add_alias( ).
+
+  ENDMETHOD.
+
+
+  METHOD _set_test_classes.
+
+    LOOP AT it_classes
+      ASSIGNING FIELD-SYMBOL(<ls_test_class>).
+
+      DATA(lo_class) = io_specification->add_test_class( <ls_test_class>-name ).
+
+      _set_class_definition(
+        is_create_class = <ls_test_class>
+        io_definition = lo_class->definition ).
+
+      _set_class_implementation(
+        is_create_class = <ls_test_class>
+        io_implementation = lo_class->implementation ).
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD _set_types.
+
+    LOOP AT is_section-types
+      ASSIGNING FIELD-SYMBOL(<ls_type>).
+
+      " Types
+      DATA(lo_type) = io_section->add_type( <ls_type>-name ).
+      lo_type->for( xco_cp_abap=>type-source->for( <ls_type>-source ) ).
+
+    ENDLOOP.
+
+  ENDMETHOD.
 ENDCLASS.

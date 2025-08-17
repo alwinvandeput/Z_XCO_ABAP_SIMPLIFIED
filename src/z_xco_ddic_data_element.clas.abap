@@ -66,7 +66,9 @@ CLASS z_xco_ddic_data_element DEFINITION
 ENDCLASS.
 
 
-CLASS z_xco_ddic_data_element IMPLEMENTATION.
+
+CLASS Z_XCO_DDIC_DATA_ELEMENT IMPLEMENTATION.
+
 
   METHOD create_or_update_instance.
 
@@ -135,14 +137,6 @@ CLASS z_xco_ddic_data_element IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD get_instance.
-
-    ro_data_element_bo = NEW #( ).
-
-    ro_data_element_bo->gv_data_element_name = iv_data_element_name.
-
-  ENDMETHOD.
-
 
   METHOD get_data.
 
@@ -198,4 +192,11 @@ CLASS z_xco_ddic_data_element IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD get_instance.
+
+    ro_data_element_bo = NEW #( ).
+
+    ro_data_element_bo->gv_data_element_name = iv_data_element_name.
+
+  ENDMETHOD.
 ENDCLASS.

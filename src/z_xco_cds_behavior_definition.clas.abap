@@ -175,7 +175,7 @@ ENDCLASS.
 
 
 
-CLASS z_xco_cds_behavior_definition IMPLEMENTATION.
+CLASS Z_XCO_CDS_BEHAVIOR_DEFINITION IMPLEMENTATION.
 
 
   METHOD create_or_update_instance.
@@ -251,14 +251,6 @@ CLASS z_xco_cds_behavior_definition IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD get_instance.
-
-    ro_behavior_definition = NEW #( ).
-    ro_behavior_definition->gv_behavior_definition_name = iv_behavior_definition_name.
-
-  ENDMETHOD.
-
-
   METHOD get_data.
 
 *    DATA(lo_behavior_definition) = xco_cp_abap_repository=>object->srvb->for( gv_behavior_definition_name ).
@@ -295,6 +287,59 @@ CLASS z_xco_cds_behavior_definition IMPLEMENTATION.
 *    ENDLOOP.
 
   ENDMETHOD.
+
+
+  METHOD get_instance.
+
+    ro_behavior_definition = NEW #( ).
+    ro_behavior_definition->gv_behavior_definition_name = iv_behavior_definition_name.
+
+  ENDMETHOD.
+
+
+  METHOD _set_actions.
+
+
+    LOOP AT is_behavior-actions
+      ASSIGNING FIELD-SYMBOL(<ls_action>).
+
+      DATA(lo_action) = io_header_behavior->add_action( <ls_action>-name ).
+
+      lo_action->set_draft( <ls_action>-draft ).
+
+      lo_action->set_determine( <ls_action>-determine ).
+
+      lo_action->set_optimized( <ls_action>-optimized ).
+
+      lo_action->set_features_instance( <ls_action>-features_instance ).
+
+      IF <ls_action>-parameter_entity_name  IS NOT INITIAL.
+        lo_action->parameter->set_entity( <ls_action>-parameter_entity_name ).
+      ENDIF.
+
+      IF <ls_action>-result_cardinality IS NOT INITIAL.
+        lo_action->result->set_cardinality( <ls_action>-result_cardinality ).
+        lo_action->result->set_self( <ls_action>-result_self ).
+      ENDIF.
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD _set_associations.
+
+    LOOP AT is_behavior-associations
+      ASSIGNING FIELD-SYMBOL(<ls_association>).
+
+      DATA(lo_association) = io_header_behavior->add_association( <ls_association>-alias_name ).
+      lo_association->set_create_enabled( <ls_association>-create_enabled ).
+      lo_association->set_draft_enabled( <ls_association>-draft_enabled ).
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
 
   METHOD _set_behavior_header.
 
@@ -338,62 +383,6 @@ CLASS z_xco_cds_behavior_definition IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD _set_fields.
-
-    LOOP AT is_behavior-fields
-      ASSIGNING FIELD-SYMBOL(<ls_field>).
-
-      DATA(lo_field) = io_header_behavior->add_field( <ls_field>-name ).
-
-      lo_field->set_numbering_managed( <ls_field>-numbering_managed ).
-
-      lo_field->set_read_only( <ls_field>-read_only ).
-
-    ENDLOOP.
-
-  ENDMETHOD.
-
-
-  METHOD _set_standard_operations.
-
-    LOOP AT is_behavior-standard_operations
-      ASSIGNING FIELD-SYMBOL(<lo_standard_operation>).
-      io_header_behavior->add_standard_operation( <lo_standard_operation> ).
-    ENDLOOP.
-
-  ENDMETHOD.
-
-
-  METHOD _set_actions.
-
-
-    LOOP AT is_behavior-actions
-      ASSIGNING FIELD-SYMBOL(<ls_action>).
-
-      DATA(lo_action) = io_header_behavior->add_action( <ls_action>-name ).
-
-      lo_action->set_draft( <ls_action>-draft ).
-
-      lo_action->set_determine( <ls_action>-determine ).
-
-      lo_action->set_optimized( <ls_action>-optimized ).
-
-      lo_action->set_features_instance( <ls_action>-features_instance ).
-
-      IF <ls_action>-parameter_entity_name  IS NOT INITIAL.
-        lo_action->parameter->set_entity( <ls_action>-parameter_entity_name ).
-      ENDIF.
-
-      IF <ls_action>-result_cardinality IS NOT INITIAL.
-        lo_action->result->set_cardinality( <ls_action>-result_cardinality ).
-        lo_action->result->set_self( <ls_action>-result_self ).
-      ENDIF.
-
-    ENDLOOP.
-
-  ENDMETHOD.
-
-
   METHOD _set_beh_definition_header.
 
     io_specification->set_short_description( is_create-behavior_definition-description ).
@@ -431,14 +420,16 @@ CLASS z_xco_cds_behavior_definition IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD _set_associations.
+  METHOD _set_fields.
 
-    LOOP AT is_behavior-associations
-      ASSIGNING FIELD-SYMBOL(<ls_association>).
+    LOOP AT is_behavior-fields
+      ASSIGNING FIELD-SYMBOL(<ls_field>).
 
-      DATA(lo_association) = io_header_behavior->add_association( <ls_association>-alias_name ).
-      lo_association->set_create_enabled( <ls_association>-create_enabled ).
-      lo_association->set_draft_enabled( <ls_association>-draft_enabled ).
+      DATA(lo_field) = io_header_behavior->add_field( <ls_field>-name ).
+
+      lo_field->set_numbering_managed( <ls_field>-numbering_managed ).
+
+      lo_field->set_read_only( <ls_field>-read_only ).
 
     ENDLOOP.
 
@@ -458,4 +449,13 @@ CLASS z_xco_cds_behavior_definition IMPLEMENTATION.
 
   ENDMETHOD.
 
+
+  METHOD _set_standard_operations.
+
+    LOOP AT is_behavior-standard_operations
+      ASSIGNING FIELD-SYMBOL(<lo_standard_operation>).
+      io_header_behavior->add_standard_operation( <lo_standard_operation> ).
+    ENDLOOP.
+
+  ENDMETHOD.
 ENDCLASS.

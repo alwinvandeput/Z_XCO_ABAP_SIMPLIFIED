@@ -5,6 +5,13 @@ INTERFACE z_xco_generic_cds_view_if
   TYPES tv_cds_object_name TYPE sxco_cds_object_name.
 
   TYPES:
+    BEGIN OF ts_data_source,
+      type       TYPE sxco_ar_object_type,
+      name       TYPE  z_xco_cds_dd_abstract_object=>tv_cds_object_name,
+      alias_name TYPE sxco_ddef_alias_name,
+    END OF ts_data_source.
+
+  TYPES:
     BEGIN OF ts_cardinality,
       min TYPE i,
       max TYPE i,
@@ -19,17 +26,18 @@ INTERFACE z_xco_generic_cds_view_if
     tt_compositions TYPE STANDARD TABLE OF ts_composition WITH EMPTY KEY.
 
   TYPES:
-    BEGIN OF ts_data_source,
-      type         TYPE sxco_ar_object_type,
-      name         TYPE  z_xco_cds_dd_abstract_object=>tv_cds_object_name,
-      alias_name   TYPE sxco_ddef_alias_name,
-    END OF ts_data_source.
+    BEGIN OF ts_field,
+      name       TYPE sxco_cds_object_name,
+      alias_name TYPE sxco_ddef_alias_name,
+    END OF ts_field,
+    tt_fields TYPE STANDARD TABLE OF ts_field WITH EMPTY KEY.
 
   TYPES:
     BEGIN OF ts_data,
-      name        TYPE tv_cds_object_name,
-      data_source TYPE ts_data_source,
+      name         TYPE tv_cds_object_name,
+      data_source  TYPE ts_data_source,
       compositions TYPE tt_compositions,
+      fields       TYPE tt_fields,
     END OF ts_data.
 
   METHODS get_data

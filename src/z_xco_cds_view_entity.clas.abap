@@ -240,7 +240,9 @@ CLASS z_xco_cds_view_entity DEFINITION
 ENDCLASS.
 
 
-CLASS z_xco_cds_view_entity IMPLEMENTATION.
+
+CLASS Z_XCO_CDS_VIEW_ENTITY IMPLEMENTATION.
+
 
   METHOD create_or_update_instance.
 
@@ -325,14 +327,6 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD get_instance.
-
-    ro_cds_view = NEW #( ).
-    ro_cds_view->gv_cds_view_name = iv_cds_view_name.
-
-  ENDMETHOD.
-
-
   METHOD get_data.
 
     DATA(lo_view_entity) = xco_cp_cds=>view_entity( gv_cds_view_name ).
@@ -407,121 +401,48 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD _set_annotations.
+  METHOD get_instance.
 
-    NEW z_xco_cds_annotation_converter( )->convert_annotations(
-      it_annotations       = it_annotations
-      io_annotation_target = io_annotation_target ).
-
-  ENDMETHOD.
-
-
-  METHOD _set_compositions.
-
-    LOOP AT it_compositions
-      ASSIGNING FIELD-SYMBOL(<ls_composition>).
-
-      DATA(lo_composition) = io_cds_data_definition->add_composition( <ls_composition>-entity_name ).
-      lo_composition->set_alias( <ls_composition>-alias_name ).
-
-
-      DATA(lo_cardinality) = xco_cp_cds=>cardinality->range(
-        iv_min        = <ls_composition>-cardinality-min
-        iv_max        = <ls_composition>-cardinality-max ).
-
-      lo_composition->set_cardinality( lo_cardinality ).
-
-    ENDLOOP.
-
-  ENDMETHOD.
-
-  METHOD _set_associations.
-
-    LOOP AT it_associations
-      ASSIGNING FIELD-SYMBOL(<ls_assocation>).
-
-      DATA(lo_association) = io_cds_data_definition->add_association( <ls_assocation>-entity_name ).
-      lo_association->set_alias( <ls_assocation>-alias_name ).
-
-      DATA(lo_cardinality) = xco_cp_cds=>cardinality->range(
-        iv_min        = <ls_assocation>-cardinality-min
-        iv_max        = <ls_assocation>-cardinality-max ).
-      lo_association->set_cardinality( lo_cardinality ).
-
-      DATA(lo_association_condition) = xco_cp_ddl=>expression->for_condition( <ls_assocation>-condition_text ).
-      lo_association->set_condition( lo_association_condition ).
-
-    ENDLOOP.
+    ro_cds_view = NEW #( ).
+    ro_cds_view->gv_cds_view_name = iv_cds_view_name.
 
   ENDMETHOD.
 
 
-  METHOD _set_fields.
+  METHOD get_key.
 
-    LOOP AT it_fields
-         ASSIGNING FIELD-SYMBOL(<ls_field>).
-
-      IF to_upper( <ls_field>-name ) = 'CLIENT'.
-        CONTINUE.
-      ENDIF.
-
-      DATA(lo_field) = io_cds_data_definition->add_field( xco_cp_ddl=>field( <ls_field>-name ) ).
-
-      IF <ls_field>-key_indicator = abap_true.
-        lo_field->set_key( ).
-      ENDIF.
-
-      IF <ls_field>-alias_name IS NOT INITIAL.
-        lo_field->set_alias(  <ls_field>-alias_name  ).
-      ENDIF.
-
-      _set_annotations(
-        it_annotations       = <ls_field>-annotations
-        io_annotation_target = lo_field ).
-
-    ENDLOOP.
+    rs_key = VALUE #(
+      type = 'DDLS'
+      name = gv_cds_view_name ).
 
   ENDMETHOD.
 
 
-  METHOD _set_data_def_type.
+  METHOD z_xco_generic_cds_view_if~get_data.
 
-*    CASE is_create-cds_view_data-data_definition_type.
-*
-*      WHEN cs_data_definition_type-view_entity.
-*        ro_cds_data_definition  = io_specification->add_view_entity( ).
-*
-*      WHEN OTHERS.
-*        ASSERT 1 = 0.
-*
-*    ENDCASE.
+    DATA(ls_data) = get_data( ).
 
-  ENDMETHOD.
-
-
-  METHOD _set_metadata_extension.
-
-    "CL_XCO_METADATA_EXTENSION - if_xco_metadata_extension
-    DATA(lo_metadata_extension) = xco_cp_cds=>metadata_extension( iv_cds_view_name ).
-    IF lo_metadata_extension->exists( ) = abap_true.
-
-      "if_xco_metadata_extension has no method CONTENT
-      "data(lo_md_content) = lo_metadata_extension->content( ).
-
-      "Name:
-      DATA lo TYPE REF TO if_xco_ar_object.
-      lo = CAST #( lo_metadata_extension ).
-      DATA(lv_name) = lo->name.
-      DATA(lt_lines) = lo_metadata_extension->if_xco_printable~get_text( )->get_lines( )->value.
-    ENDIF.
-
-  ENDMETHOD.
-
-  METHOD _get_data_source_object.
-
-    rs_underlying_object-type = _get_repository_object_type( is_data_source-view_entity ).
-    rs_underlying_object-name = is_data_source-view_entity.
-    rs_underlying_object-alias_name = is_data_source-alias.
+    rs_view_abstract_data = VALUE #(
+      name = ls_data-name
+      data_source = VALUE #(
+        type = ls_data-data_source-type
+        name = ls_data-data_source-name
+        alias_name = ls_data-data_source-alias_name
+      )
+      compositions = value #(
+        for <ls_composition> in ls_data-compositions
+          (  entity_name     = <ls_composition>-entity_name
+             alias_name      = <ls_composition>-alias_name
+             cardinality-min = <ls_composition>-cardinality-min
+             cardinality-max = <ls_composition>-cardinality-max
+          )
+      )
+      fields = VALUE #(
+        FOR <ls_field> IN ls_data-fields
+          ( name       = <ls_field>-name
+            alias_name = <ls_field>-alias_name )
+      )
+    ).
 
   ENDMETHOD.
 
@@ -636,6 +557,53 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD _get_associations.
+
+    LOOP AT io_view_entity->associations->all->get( )
+      INTO DATA(lo_association).
+
+      APPEND INITIAL LINE TO rt_associations
+        ASSIGNING FIELD-SYMBOL(<ls_association>).
+
+      DATA(ls_association) = lo_association->content( )->get( ).
+
+      <ls_association>-entity_name = ls_association-target.
+*      <ls_association>-to_parent_indicator = ls_association-to_parent_indicator.
+      <ls_association>-alias_name = ls_association-alias.
+      <ls_association>-cardinality = VALUE #(
+          min = ls_association-cardinality-min
+          max = ls_association-cardinality-max ).
+
+      DATA(lo_condition) = ls_association-condition.
+
+      DATA(lo_expression_blueprint) = lo_condition->if_xco_gen_ddls_ddl_expression~get_blueprint( ).
+      DATA(lo_condition_lines) = lo_condition->if_xco_text~get_lines( ).
+
+      DATA(lo_condition_iterator) = lo_condition_lines->if_xco_string_iterable~get_iterator( ).
+      WHILE lo_condition_iterator->has_next( ) = abap_true.
+        lo_condition_iterator->next( ).
+
+        DATA(lo_condition_string) = lo_condition_iterator->current_string.
+        DATA(lv_condition_string) = lo_condition_string->value.
+
+*        <ls_association>-filter_condition_lines = _get_condition_lines( lv_condition_string ).
+        <ls_association>-condition_text = lv_condition_string.
+
+      ENDWHILE.
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD _get_cardinality.
+
+    IF is_cardinality-min = 0 AND
+       is_cardinality-max = 2147483647.
+      co_cardinality = xco_cp_cds=>cardinality->zero_to_n.
+    ENDIF.
+
+  ENDMETHOD.
 
 
   METHOD _get_compositions.
@@ -734,137 +702,6 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
       ENDIF.
 
       APPEND <ls_temp_composition> TO rt_compositions.
-
-    ENDLOOP.
-
-  ENDMETHOD.
-
-
-  METHOD _get_associations.
-
-    LOOP AT io_view_entity->associations->all->get( )
-      INTO DATA(lo_association).
-
-      APPEND INITIAL LINE TO rt_associations
-        ASSIGNING FIELD-SYMBOL(<ls_association>).
-
-      DATA(ls_association) = lo_association->content( )->get( ).
-
-      <ls_association>-entity_name = ls_association-target.
-*      <ls_association>-to_parent_indicator = ls_association-to_parent_indicator.
-      <ls_association>-alias_name = ls_association-alias.
-      <ls_association>-cardinality = VALUE #(
-          min = ls_association-cardinality-min
-          max = ls_association-cardinality-max ).
-
-      DATA(lo_condition) = ls_association-condition.
-
-      DATA(lo_expression_blueprint) = lo_condition->if_xco_gen_ddls_ddl_expression~get_blueprint( ).
-      DATA(lo_condition_lines) = lo_condition->if_xco_text~get_lines( ).
-
-      DATA(lo_condition_iterator) = lo_condition_lines->if_xco_string_iterable~get_iterator( ).
-      WHILE lo_condition_iterator->has_next( ) = abap_true.
-        lo_condition_iterator->next( ).
-
-        DATA(lo_condition_string) = lo_condition_iterator->current_string.
-        DATA(lv_condition_string) = lo_condition_string->value.
-
-*        <ls_association>-filter_condition_lines = _get_condition_lines( lv_condition_string ).
-        <ls_association>-condition_text = lv_condition_string.
-
-      ENDWHILE.
-
-    ENDLOOP.
-
-  ENDMETHOD.
-
-
-  METHOD _get_fields.
-
-    LOOP AT io_view_entity->fields->all->get( )
-      INTO DATA(lo_field).  "CL_XCO_CDS_FIELD
-
-      APPEND INITIAL LINE TO rt_fields
-        ASSIGNING FIELD-SYMBOL(<ls_field>).
-
-      DATA(ls_field) = lo_field->content( )->get( ).
-
-      DATA lv_field_type TYPE tv_field_type.
-
-      IF ls_field-expression IS NOT INITIAL.
-
-        lv_field_type = cs_field_type-expression.
-
-        CASE TYPE OF ls_field-expression.
-
-          WHEN TYPE if_xco_ddl_expr_field.
-
-            DATA(lo_xco_ddl_expr_field) = CAST if_xco_ddl_expr_field( ls_field-expression ).
-
-            DATA(lo_expression) = CAST if_xco_gen_ddls_ddl_expression( ls_field-expression ).
-            DATA(lo_blueprint) = lo_expression->get_blueprint( ).
-
-            DATA lo_strings TYPE REF TO if_xco_strings.
-            lo_strings = ls_field-expression->if_xco_text~get_lines( ).
-            IF lo_strings IS NOT INITIAL.
-              DATA(lt_source_field_names) = lo_strings->value.
-              DATA(lt_expression_lines) = lt_source_field_names.
-              IF lines( lt_source_field_names ) = 1.
-                DATA(lv_source_field_name) = lt_source_field_names[ 1 ].
-              ELSE.
-                "TODO
-                ASSERT 1 = 1.
-              ENDIF.
-            ENDIF.
-
-          WHEN OTHERS.
-
-            lo_blueprint = ls_field-expression->if_xco_gen_ddls_ddl_expression~get_blueprint( ).
-
-            lo_strings = ls_field-expression->if_xco_text~get_lines( ).
-            IF lo_strings IS NOT INITIAL.
-              lt_source_field_names = lo_strings->value.
-              lt_expression_lines = lt_source_field_names.
-              IF lines( lt_source_field_names ) = 1.
-                lv_source_field_name = lt_source_field_names[ 1 ].
-              ELSE.
-                "TODO
-                ASSERT 1 = 1.
-              ENDIF.
-            ENDIF.
-
-        ENDCASE.
-
-      ENDIF.
-
-      IF ls_field-redirected_to IS NOT INITIAL.
-        lv_field_type = cs_field_type-redirected_to.
-        "TODO
-        ASSERT 1 = 1.
-      ENDIF.
-
-      IF ls_field-redirected_to_parent IS NOT INITIAL.
-        lv_field_type = cs_field_type-redirected_to_parent.
-        "TODO
-        ASSERT 1 = 1.
-      ENDIF.
-
-      IF ls_field-composition IS NOT INITIAL.
-        lv_field_type = cs_field_type-composition.
-        "TODO
-        ASSERT 1 = 1.
-      ENDIF.
-
-      IF ls_field-association IS NOT INITIAL.
-        lv_field_type = cs_field_type-association.
-        "TODO
-        ASSERT 1 = 1.
-
-      ENDIF.
-
-      <ls_field>-name = lv_source_field_name.
-      <ls_field>-key_indicator = ls_field-key_indicator.
-      <ls_field>-alias_name = ls_field-alias.
 
     ENDLOOP.
 
@@ -1004,6 +841,106 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD _get_data_source_object.
+
+    rs_underlying_object-type = _get_repository_object_type( is_data_source-view_entity ).
+    rs_underlying_object-name = is_data_source-view_entity.
+    rs_underlying_object-alias_name = is_data_source-alias.
+
+  ENDMETHOD.
+
+
+  METHOD _get_fields.
+
+    LOOP AT io_view_entity->fields->all->get( )
+      INTO DATA(lo_field).  "CL_XCO_CDS_FIELD
+
+      APPEND INITIAL LINE TO rt_fields
+        ASSIGNING FIELD-SYMBOL(<ls_field>).
+
+      DATA(ls_field) = lo_field->content( )->get( ).
+
+      DATA lv_field_type TYPE tv_field_type.
+
+      IF ls_field-expression IS NOT INITIAL.
+
+        lv_field_type = cs_field_type-expression.
+
+        CASE TYPE OF ls_field-expression.
+
+          WHEN TYPE if_xco_ddl_expr_field.
+
+            DATA(lo_xco_ddl_expr_field) = CAST if_xco_ddl_expr_field( ls_field-expression ).
+
+            DATA(lo_expression) = CAST if_xco_gen_ddls_ddl_expression( ls_field-expression ).
+            DATA(lo_blueprint) = lo_expression->get_blueprint( ).
+
+            DATA lo_strings TYPE REF TO if_xco_strings.
+            lo_strings = ls_field-expression->if_xco_text~get_lines( ).
+            IF lo_strings IS NOT INITIAL.
+              DATA(lt_source_field_names) = lo_strings->value.
+              DATA(lt_expression_lines) = lt_source_field_names.
+              IF lines( lt_source_field_names ) = 1.
+                DATA(lv_source_field_name) = lt_source_field_names[ 1 ].
+              ELSE.
+                "TODO
+                ASSERT 1 = 1.
+              ENDIF.
+            ENDIF.
+
+          WHEN OTHERS.
+
+            lo_blueprint = ls_field-expression->if_xco_gen_ddls_ddl_expression~get_blueprint( ).
+
+            lo_strings = ls_field-expression->if_xco_text~get_lines( ).
+            IF lo_strings IS NOT INITIAL.
+              lt_source_field_names = lo_strings->value.
+              lt_expression_lines = lt_source_field_names.
+              IF lines( lt_source_field_names ) = 1.
+                lv_source_field_name = lt_source_field_names[ 1 ].
+              ELSE.
+                "TODO
+                ASSERT 1 = 1.
+              ENDIF.
+            ENDIF.
+
+        ENDCASE.
+
+      ENDIF.
+
+      IF ls_field-redirected_to IS NOT INITIAL.
+        lv_field_type = cs_field_type-redirected_to.
+        "TODO
+        ASSERT 1 = 1.
+      ENDIF.
+
+      IF ls_field-redirected_to_parent IS NOT INITIAL.
+        lv_field_type = cs_field_type-redirected_to_parent.
+        "TODO
+        ASSERT 1 = 1.
+      ENDIF.
+
+      IF ls_field-composition IS NOT INITIAL.
+        lv_field_type = cs_field_type-composition.
+        "TODO
+        ASSERT 1 = 1.
+      ENDIF.
+
+      IF ls_field-association IS NOT INITIAL.
+        lv_field_type = cs_field_type-association.
+        "TODO
+        ASSERT 1 = 1.
+
+      ENDIF.
+
+      <ls_field>-name = lv_source_field_name.
+      <ls_field>-key_indicator = ls_field-key_indicator.
+      <ls_field>-alias_name = ls_field-alias.
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
 
   METHOD _get_metadata_extension.
 
@@ -1024,48 +961,114 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD _set_annotations.
+
+    NEW z_xco_cds_annotation_converter( )->convert_annotations(
+      it_annotations       = it_annotations
+      io_annotation_target = io_annotation_target ).
+
+  ENDMETHOD.
 
 
-  METHOD _get_cardinality.
+  METHOD _set_associations.
 
-    IF is_cardinality-min = 0 AND
-       is_cardinality-max = 2147483647.
-      co_cardinality = xco_cp_cds=>cardinality->zero_to_n.
+    LOOP AT it_associations
+      ASSIGNING FIELD-SYMBOL(<ls_assocation>).
+
+      DATA(lo_association) = io_cds_data_definition->add_association( <ls_assocation>-entity_name ).
+      lo_association->set_alias( <ls_assocation>-alias_name ).
+
+      DATA(lo_cardinality) = xco_cp_cds=>cardinality->range(
+        iv_min        = <ls_assocation>-cardinality-min
+        iv_max        = <ls_assocation>-cardinality-max ).
+      lo_association->set_cardinality( lo_cardinality ).
+
+      DATA(lo_association_condition) = xco_cp_ddl=>expression->for_condition( <ls_assocation>-condition_text ).
+      lo_association->set_condition( lo_association_condition ).
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD _set_compositions.
+
+    LOOP AT it_compositions
+      ASSIGNING FIELD-SYMBOL(<ls_composition>).
+
+      DATA(lo_composition) = io_cds_data_definition->add_composition( <ls_composition>-entity_name ).
+      lo_composition->set_alias( <ls_composition>-alias_name ).
+
+
+      DATA(lo_cardinality) = xco_cp_cds=>cardinality->range(
+        iv_min        = <ls_composition>-cardinality-min
+        iv_max        = <ls_composition>-cardinality-max ).
+
+      lo_composition->set_cardinality( lo_cardinality ).
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD _set_data_def_type.
+
+*    CASE is_create-cds_view_data-data_definition_type.
+*
+*      WHEN cs_data_definition_type-view_entity.
+*        ro_cds_data_definition  = io_specification->add_view_entity( ).
+*
+*      WHEN OTHERS.
+*        ASSERT 1 = 0.
+*
+*    ENDCASE.
+
+  ENDMETHOD.
+
+
+  METHOD _set_fields.
+
+    LOOP AT it_fields
+         ASSIGNING FIELD-SYMBOL(<ls_field>).
+
+      IF to_upper( <ls_field>-name ) = 'CLIENT'.
+        CONTINUE.
+      ENDIF.
+
+      DATA(lo_field) = io_cds_data_definition->add_field( xco_cp_ddl=>field( <ls_field>-name ) ).
+
+      IF <ls_field>-key_indicator = abap_true.
+        lo_field->set_key( ).
+      ENDIF.
+
+      IF <ls_field>-alias_name IS NOT INITIAL.
+        lo_field->set_alias(  <ls_field>-alias_name  ).
+      ENDIF.
+
+      _set_annotations(
+        it_annotations       = <ls_field>-annotations
+        io_annotation_target = lo_field ).
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD _set_metadata_extension.
+
+    "CL_XCO_METADATA_EXTENSION - if_xco_metadata_extension
+    DATA(lo_metadata_extension) = xco_cp_cds=>metadata_extension( iv_cds_view_name ).
+    IF lo_metadata_extension->exists( ) = abap_true.
+
+      "if_xco_metadata_extension has no method CONTENT
+      "data(lo_md_content) = lo_metadata_extension->content( ).
+
+      "Name:
+      DATA lo TYPE REF TO if_xco_ar_object.
+      lo = CAST #( lo_metadata_extension ).
+      DATA(lv_name) = lo->name.
+      DATA(lt_lines) = lo_metadata_extension->if_xco_printable~get_text( )->get_lines( )->value.
     ENDIF.
 
   ENDMETHOD.
-
-
-  METHOD get_key.
-
-    rs_key = VALUE #(
-      type = 'DDLS'
-      name = gv_cds_view_name ).
-
-  ENDMETHOD.
-
-
-  METHOD z_xco_generic_cds_view_if~get_view_abstract_data.
-
-    DATA(ls_data) = get_data( ).
-
-    rs_view_abstract_data = VALUE #(
-      name = ls_data-name
-      data_source = VALUE #(
-        type = ls_data-data_source-type
-        name = ls_data-data_source-name
-        alias_name = ls_data-data_source-alias_name
-      )
-      compositions = value #(
-        for <ls_composition> in ls_data-compositions
-          (  entity_name     = <ls_composition>-entity_name
-             alias_name      = <ls_composition>-alias_name
-             cardinality-min = <ls_composition>-cardinality-min
-             cardinality-max = <ls_composition>-cardinality-max
-          )
-      )
-    ).
-
-  ENDMETHOD.
-
 ENDCLASS.

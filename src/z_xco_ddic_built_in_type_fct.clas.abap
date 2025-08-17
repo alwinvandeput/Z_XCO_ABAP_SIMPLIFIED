@@ -96,7 +96,8 @@ ENDCLASS.
 
 
 
-CLASS z_xco_ddic_built_in_type_fct IMPLEMENTATION.
+CLASS Z_XCO_DDIC_BUILT_IN_TYPE_FCT IMPLEMENTATION.
+
 
   METHOD get_built_in_type.
 
@@ -195,5 +196,4 @@ CLASS z_xco_ddic_built_in_type_fct IMPLEMENTATION.
     ENDCASE.
 
   ENDMETHOD.
-
 ENDCLASS.

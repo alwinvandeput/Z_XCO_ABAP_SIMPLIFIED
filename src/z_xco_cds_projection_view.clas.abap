@@ -30,7 +30,7 @@ CLASS z_xco_cds_projection_view DEFINITION
       BEGIN OF ts_field,
         key_indicator              TYPE abap_bool,
         name                       TYPE sxco_cds_object_name,
-        alias                      TYPE sxco_ddef_alias_name,
+        alias_name                      TYPE sxco_ddef_alias_name,
         expression                 TYPE REF TO if_xco_ddl_expression,
         redirected_to_compos_child TYPE sxco_cds_object_name,
       END OF ts_field,
@@ -80,14 +80,8 @@ ENDCLASS.
 
 
 
-CLASS z_xco_cds_projection_view IMPLEMENTATION.
+CLASS Z_XCO_CDS_PROJECTION_VIEW IMPLEMENTATION.
 
-  METHOD get_instance.
-
-    ro_projection_view = NEW #( ).
-    ro_projection_view->gv_projection_view_name = iv_projection_view_name.
-
-  ENDMETHOD.
 
   METHOD get_data.
 
@@ -133,6 +127,15 @@ CLASS z_xco_cds_projection_view IMPLEMENTATION.
 
   ENDMETHOD.
 
+
+  METHOD get_instance.
+
+    ro_projection_view = NEW #( ).
+    ro_projection_view->gv_projection_view_name = iv_projection_view_name.
+
+  ENDMETHOD.
+
+
   METHOD get_key.
 
     rs_key = VALUE #(
@@ -142,37 +145,31 @@ CLASS z_xco_cds_projection_view IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD _get_fields.
+  METHOD z_xco_generic_cds_view_if~get_data.
 
-    DATA(lt_fields) = io_projection_view->fields->all->get( ).
-    LOOP AT lt_fields
-      ASSIGNING FIELD-SYMBOL(<lo_field>).
+    DATA(ls_data) = get_data( ).
 
-      DATA(ls_field_content) = <lo_field>->content( )->get( ).
-
-      APPEND
-        VALUE #(
-          name = <lo_field>->name )
-        TO rt_fields
-        ASSIGNING FIELD-SYMBOL(<ls_target_field>).
-
-      <ls_target_field>-alias = ls_field_content-alias.
-      <ls_target_field>-key_indicator = ls_field_content-key_indicator.
-*ls_field_content-association
-*ls_field_content-composition
-      <ls_target_field>-expression = ls_field_content-expression.
-
-*ls_field_content-localized_indicator
-*ls_field_content-original_name
-*ls_field_content-redirected_to
-      <ls_target_field>-redirected_to_compos_child = ls_field_content-redirected_to_compos_child.
-*ls_field_content-redirected_to_parent
-*ls_field_content-type
-*ls_field_content-virtual_indicator
-
-
-
-    ENDLOOP.
+    rs_view_abstract_data = VALUE #(
+      name = ls_data-name
+      data_source = VALUE #(
+        type = ls_data-data_source-type
+        name = ls_data-data_source-name
+        alias_name = ls_data-data_source-alias_name
+      )
+      compositions = VALUE #(
+        FOR <ls_field> IN ls_data-fields
+          WHERE ( redirected_to_compos_child IS NOT INITIAL )
+          (  entity_name     = <ls_field>-redirected_to_compos_child
+             alias_name      = <ls_field>-name
+          )
+      )
+      fields = VALUE #(
+        FOR <ls_field> IN ls_data-fields
+          WHERE ( redirected_to_compos_child IS INITIAL )
+          ( name       = <ls_field>-name
+            alias_name = <ls_field>-alias_name )
+      )
+    ).
 
   ENDMETHOD.
 
@@ -201,27 +198,38 @@ CLASS z_xco_cds_projection_view IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD z_xco_generic_cds_view_if~get_view_abstract_data.
 
-    DATA(ls_data) = get_data( ).
+  METHOD _get_fields.
 
-    rs_view_abstract_data = VALUE #(
-      name = ls_data-name
-      data_source = VALUE #(
-        type = ls_data-data_source-type
-        name = ls_data-data_source-name
-        alias_name = ls_data-data_source-alias_name
-      )
-      compositions = VALUE #(
-        FOR <ls_field> IN ls_data-fields
-          WHERE ( redirected_to_compos_child is not initial )
-          (  entity_name     = <ls_field>-redirected_to_compos_child
-             alias_name      = <ls_field>-name
-          )
-      )
-    ).
+    DATA(lt_fields) = io_projection_view->fields->all->get( ).
+    LOOP AT lt_fields
+      ASSIGNING FIELD-SYMBOL(<lo_field>).
+
+      DATA(ls_field_content) = <lo_field>->content( )->get( ).
+
+      APPEND
+        VALUE #(
+          name = <lo_field>->name )
+        TO rt_fields
+        ASSIGNING FIELD-SYMBOL(<ls_target_field>).
+
+      <ls_target_field>-alias_name = ls_field_content-alias.
+      <ls_target_field>-key_indicator = ls_field_content-key_indicator.
+*ls_field_content-association
+*ls_field_content-composition
+      <ls_target_field>-expression = ls_field_content-expression.
+
+*ls_field_content-localized_indicator
+*ls_field_content-original_name
+*ls_field_content-redirected_to
+      <ls_target_field>-redirected_to_compos_child = ls_field_content-redirected_to_compos_child.
+*ls_field_content-redirected_to_parent
+*ls_field_content-type
+*ls_field_content-virtual_indicator
+
+
+
+    ENDLOOP.
 
   ENDMETHOD.
-
-
 ENDCLASS.

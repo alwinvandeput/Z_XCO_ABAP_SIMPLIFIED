@@ -78,7 +78,9 @@ CLASS z_xco_ddic_database_table DEFINITION
 ENDCLASS.
 
 
-CLASS z_xco_ddic_database_table IMPLEMENTATION.
+
+CLASS Z_XCO_DDIC_DATABASE_TABLE IMPLEMENTATION.
+
 
   METHOD create_or_update_instance.
 
@@ -163,14 +165,6 @@ CLASS z_xco_ddic_database_table IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD get_instance.
-
-    ro_db_table_bo = NEW #( ).
-
-    ro_db_table_bo->gv_db_table_name = iv_db_table_name.
-
-  ENDMETHOD.
-
 
   METHOD get_data.
 
@@ -232,4 +226,12 @@ CLASS z_xco_ddic_database_table IMPLEMENTATION.
 
   ENDMETHOD.
 
+
+  METHOD get_instance.
+
+    ro_db_table_bo = NEW #( ).
+
+    ro_db_table_bo->gv_db_table_name = iv_db_table_name.
+
+  ENDMETHOD.
 ENDCLASS.

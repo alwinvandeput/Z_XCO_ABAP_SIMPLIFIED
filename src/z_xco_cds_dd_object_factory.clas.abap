@@ -34,17 +34,7 @@ ENDCLASS.
 
 
 
-CLASS z_xco_cds_dd_object_factory IMPLEMENTATION.
-
-  METHOD get_factory.
-
-    IF go_factory IS INITIAL.
-      go_factory = NEW #( ).
-    ENDIF.
-
-    ro_factory = go_factory.
-
-  ENDMETHOD.
+CLASS Z_XCO_CDS_DD_OBJECT_FACTORY IMPLEMENTATION.
 
 
   METHOD get_cds_object_by_name.
@@ -75,4 +65,14 @@ CLASS z_xco_cds_dd_object_factory IMPLEMENTATION.
 
   ENDMETHOD.
 
+
+  METHOD get_factory.
+
+    IF go_factory IS INITIAL.
+      go_factory = NEW #( ).
+    ENDIF.
+
+    ro_factory = go_factory.
+
+  ENDMETHOD.
 ENDCLASS.

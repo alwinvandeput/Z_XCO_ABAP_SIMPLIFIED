@@ -45,7 +45,8 @@ ENDCLASS.
 
 
 
-CLASS z_xco_cds_view_deep_read_dp IMPLEMENTATION.
+CLASS Z_XCO_CDS_VIEW_DEEP_READ_DP IMPLEMENTATION.
+
 
   METHOD read_in_layers.
 
@@ -68,7 +69,7 @@ CLASS z_xco_cds_view_deep_read_dp IMPLEMENTATION.
 
       _read_cds_view(
         EXPORTING
-          iv_cds_view_name = iv_cds_view_name
+          iv_cds_view_name = lv_cds_view_name
         IMPORTING
           es_cds_view_data = DATA(ls_cds_view_data)
         CHANGING
@@ -148,5 +149,4 @@ CLASS z_xco_cds_view_deep_read_dp IMPLEMENTATION.
     ENDLOOP.
 
   ENDMETHOD.
-
 ENDCLASS.

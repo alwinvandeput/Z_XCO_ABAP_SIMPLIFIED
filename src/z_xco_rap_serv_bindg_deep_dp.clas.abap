@@ -53,7 +53,8 @@ ENDCLASS.
 
 
 
-CLASS z_xco_rap_serv_bindg_deep_dp IMPLEMENTATION.
+CLASS Z_XCO_RAP_SERV_BINDG_DEEP_DP IMPLEMENTATION.
+
 
   METHOD deep_read_service_binding.
 
@@ -87,6 +88,11 @@ CLASS z_xco_rap_serv_bindg_deep_dp IMPLEMENTATION.
               rs_data-service_definition-name
               iv_sd_root_entity_alias_name.
     ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD _deep_read_cds_view.
 
   ENDMETHOD.
 
@@ -161,10 +167,4 @@ CLASS z_xco_rap_serv_bindg_deep_dp IMPLEMENTATION.
     rs_result_service_definition = lo_service_definition->get_data( ).
 
   ENDMETHOD.
-
-
-  METHOD _deep_read_cds_view.
-
-  ENDMETHOD.
-
 ENDCLASS.

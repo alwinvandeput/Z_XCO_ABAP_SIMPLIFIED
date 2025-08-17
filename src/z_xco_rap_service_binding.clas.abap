@@ -60,7 +60,7 @@ ENDCLASS.
 
 
 
-CLASS z_xco_rap_service_binding IMPLEMENTATION.
+CLASS Z_XCO_RAP_SERVICE_BINDING IMPLEMENTATION.
 
 
   METHOD create_or_update_instance.
@@ -95,14 +95,6 @@ CLASS z_xco_rap_service_binding IMPLEMENTATION.
 
     ro_service_binding = NEW #( ).
     ro_service_binding->gv_service_binding_name = is_create-service_binding-name.
-
-  ENDMETHOD.
-
-
-  METHOD get_instance.
-
-    ro_service_binding = NEW #( ).
-    ro_service_binding->gv_service_binding_name = iv_service_binding_name.
 
   ENDMETHOD.
 
@@ -148,6 +140,14 @@ CLASS z_xco_rap_service_binding IMPLEMENTATION.
       ENDLOOP.
 
     ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD get_instance.
+
+    ro_service_binding = NEW #( ).
+    ro_service_binding->gv_service_binding_name = iv_service_binding_name.
 
   ENDMETHOD.
 

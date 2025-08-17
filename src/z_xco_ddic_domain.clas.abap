@@ -76,74 +76,15 @@ ENDCLASS.
 
 
 
-CLASS z_xco_ddic_domain IMPLEMENTATION.
+CLASS Z_XCO_DDIC_DOMAIN IMPLEMENTATION.
 
-  METHOD get_instance.
 
-    ro_domain_bo = NEW #( ).
-
-    ro_domain_bo->gv_domain_name = iv_domain_name.
-
-  ENDMETHOD.
-
-  METHOD get_data.
+  METHOD check_exists.
 
     DATA(lo_xco_domain) = xco_cp_abap_dictionary=>domain(
       gv_domain_name ).
 
-    IF lo_xco_domain->exists( ) = abap_false.
-      RETURN.
-    ENDIF.
-
-    rs_data-name = gv_domain_name.
-
-    IF gv_domain_name = 'MANDT'.
-      RETURN.
-    ENDIF.
-
-    DATA(ls_xco_domain_content) = lo_xco_domain->content( )->get( ).
-    rs_data-short_description = ls_xco_domain_content-short_description.
-
-    "DATA(lo_blueprint) = lo_format->if_xco_gen_doma_format~get_blueprint( ).
-
-    DATA(lo_format) = ls_xco_domain_content-format.
-    IF lo_format->is_built_in_type( ) = abap_false.
-      ASSERT 1 = 0.
-    ENDIF.
-
-    DATA(lo_type) = lo_format->get_built_in_type( ).
-    rs_data-built_in_type-type = lo_type->type.
-    rs_data-built_in_type-length = lo_type->length.
-    rs_data-built_in_type-decimals = lo_type->decimals.
-
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    "Output Characters
-    rs_data-case_sensitive = ls_xco_domain_content-output_characteristics-case_sensitive.
-
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    "Fixed Values
-    DATA(lo_fixed_values) = lo_xco_domain->fixed_values.
-    IF lo_fixed_values IS NOT INITIAL.
-
-      DATA(lo_all_fixed_values) = lo_fixed_values->all.
-      DATA(lt_fixed_values) = lo_all_fixed_values->get( ).
-
-      LOOP AT lt_fixed_values
-        ASSIGNING FIELD-SYMBOL(<lo_fixed_value>). "CL_XCO_DOMAIN_FIXED_VALUE
-
-        APPEND INITIAL LINE TO rs_data-fixed_values
-          ASSIGNING FIELD-SYMBOL(<ls_fixed_value>).
-
-        DATA(lo2) = CAST if_xco_domain_fixed_value( <lo_fixed_value> ).
-        <ls_fixed_value>-lower_limit = lo2->lower_limit.
-        DATA(lo_fixed_value_content) = <lo_fixed_value>->content( ).
-        DATA(ls_fixed_value_content) = lo_fixed_value_content->get( ).
-        <ls_fixed_value>-upper_limit = ls_fixed_value_content-upper_limit.
-        <ls_fixed_value>-description = ls_fixed_value_content-description.
-
-      ENDLOOP.
-
-    ENDIF.
+    rv_exists = lo_xco_domain->exists( ).
 
   ENDMETHOD.
 
@@ -207,19 +148,81 @@ CLASS z_xco_ddic_domain IMPLEMENTATION.
 
   ENDMETHOD.
 
+
   METHOD delete.
 
     "There is no code for deleting domains.
 
   ENDMETHOD.
 
-  METHOD check_exists.
+
+  METHOD get_data.
 
     DATA(lo_xco_domain) = xco_cp_abap_dictionary=>domain(
       gv_domain_name ).
 
-    rv_exists = lo_xco_domain->exists( ).
+    IF lo_xco_domain->exists( ) = abap_false.
+      RETURN.
+    ENDIF.
+
+    rs_data-name = gv_domain_name.
+
+    IF gv_domain_name = 'MANDT'.
+      RETURN.
+    ENDIF.
+
+    DATA(ls_xco_domain_content) = lo_xco_domain->content( )->get( ).
+    rs_data-short_description = ls_xco_domain_content-short_description.
+
+    "DATA(lo_blueprint) = lo_format->if_xco_gen_doma_format~get_blueprint( ).
+
+    DATA(lo_format) = ls_xco_domain_content-format.
+    IF lo_format->is_built_in_type( ) = abap_false.
+      ASSERT 1 = 0.
+    ENDIF.
+
+    DATA(lo_type) = lo_format->get_built_in_type( ).
+    rs_data-built_in_type-type = lo_type->type.
+    rs_data-built_in_type-length = lo_type->length.
+    rs_data-built_in_type-decimals = lo_type->decimals.
+
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    "Output Characters
+    rs_data-case_sensitive = ls_xco_domain_content-output_characteristics-case_sensitive.
+
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    "Fixed Values
+    DATA(lo_fixed_values) = lo_xco_domain->fixed_values.
+    IF lo_fixed_values IS NOT INITIAL.
+
+      DATA(lo_all_fixed_values) = lo_fixed_values->all.
+      DATA(lt_fixed_values) = lo_all_fixed_values->get( ).
+
+      LOOP AT lt_fixed_values
+        ASSIGNING FIELD-SYMBOL(<lo_fixed_value>). "CL_XCO_DOMAIN_FIXED_VALUE
+
+        APPEND INITIAL LINE TO rs_data-fixed_values
+          ASSIGNING FIELD-SYMBOL(<ls_fixed_value>).
+
+        DATA(lo2) = CAST if_xco_domain_fixed_value( <lo_fixed_value> ).
+        <ls_fixed_value>-lower_limit = lo2->lower_limit.
+        DATA(lo_fixed_value_content) = <lo_fixed_value>->content( ).
+        DATA(ls_fixed_value_content) = lo_fixed_value_content->get( ).
+        <ls_fixed_value>-upper_limit = ls_fixed_value_content-upper_limit.
+        <ls_fixed_value>-description = ls_fixed_value_content-description.
+
+      ENDLOOP.
+
+    ENDIF.
 
   ENDMETHOD.
 
+
+  METHOD get_instance.
+
+    ro_domain_bo = NEW #( ).
+
+    ro_domain_bo->gv_domain_name = iv_domain_name.
+
+  ENDMETHOD.
 ENDCLASS.

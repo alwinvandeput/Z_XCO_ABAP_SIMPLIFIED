@@ -65,7 +65,8 @@ CLASS z_xco_cds_metadata_extension DEFINITION
 ENDCLASS.
 
 
-CLASS z_xco_cds_metadata_extension IMPLEMENTATION.
+
+CLASS Z_XCO_CDS_METADATA_EXTENSION IMPLEMENTATION.
 
 
   METHOD create_or_update_instance.
@@ -98,14 +99,6 @@ CLASS z_xco_cds_metadata_extension IMPLEMENTATION.
 
     ro_metadata_extension = NEW #( ).
     ro_metadata_extension->gv_metadata_extension_name = is_create-metadata_extension-name.
-
-  ENDMETHOD.
-
-
-  METHOD get_instance.
-
-    ro_metadata_extension = NEW #( ).
-    ro_metadata_extension->gv_metadata_extension_name = iv_metadata_extension_name.
 
   ENDMETHOD.
 
@@ -147,4 +140,11 @@ CLASS z_xco_cds_metadata_extension IMPLEMENTATION.
 
   ENDMETHOD.
 
+
+  METHOD get_instance.
+
+    ro_metadata_extension = NEW #( ).
+    ro_metadata_extension->gv_metadata_extension_name = iv_metadata_extension_name.
+
+  ENDMETHOD.
 ENDCLASS.
