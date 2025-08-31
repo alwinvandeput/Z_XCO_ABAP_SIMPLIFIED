@@ -151,7 +151,9 @@ CLASS z_xco_cds_view_entity DEFINITION
 
     METHODS get_data
       IMPORTING is_select_data TYPE ts_select_data OPTIONAL
-      RETURNING VALUE(rs_data) TYPE ts_data.
+      RETURNING VALUE(rs_data) TYPE ts_data
+      RAISING
+        zcx_xco_error.
 
     METHODS: get_key REDEFINITION.
 
