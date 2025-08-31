@@ -7,7 +7,7 @@ INTERFACE z_xco_generic_cds_view_if
   TYPES:
     BEGIN OF ts_data_source,
       type       TYPE sxco_ar_object_type,
-      name       TYPE  z_xco_cds_dd_abstract_object=>tv_cds_object_name,
+      name       TYPE  z_xco_cds_data_definition=>tv_cds_object_name,
       alias_name TYPE sxco_ddef_alias_name,
     END OF ts_data_source.
 
@@ -40,7 +40,15 @@ INTERFACE z_xco_generic_cds_view_if
       fields       TYPE tt_fields,
     END OF ts_data.
 
+
+  TYPES:
+    BEGIN OF ts_select_data,
+      underlying_object TYPE abap_boolean,
+    END OF ts_select_data.
+
   METHODS get_data
+    "TODO implement select_data in implementing classes
+    IMPORTING select_data                  TYPE ts_select_data optional
     RETURNING VALUE(rs_view_abstract_data) TYPE ts_data.
 
 ENDINTERFACE.

@@ -1,5 +1,5 @@
 CLASS z_xco_cds_view_entity DEFINITION
-  INHERITING FROM z_xco_cds_dd_abstract_object
+  INHERITING FROM z_xco_cds_data_definition
   PUBLIC
   CREATE PUBLIC .
 
@@ -241,7 +241,7 @@ ENDCLASS.
 
 
 
-CLASS Z_XCO_CDS_VIEW_ENTITY IMPLEMENTATION.
+CLASS z_xco_cds_view_entity IMPLEMENTATION.
 
 
   METHOD create_or_update_instance.
@@ -429,8 +429,8 @@ CLASS Z_XCO_CDS_VIEW_ENTITY IMPLEMENTATION.
         name = ls_data-data_source-name
         alias_name = ls_data-data_source-alias_name
       )
-      compositions = value #(
-        for <ls_composition> in ls_data-compositions
+      compositions = VALUE #(
+        FOR <ls_composition> IN ls_data-compositions
           (  entity_name     = <ls_composition>-entity_name
              alias_name      = <ls_composition>-alias_name
              cardinality-min = <ls_composition>-cardinality-min
@@ -662,12 +662,12 @@ CLASS Z_XCO_CDS_VIEW_ENTITY IMPLEMENTATION.
 
     " Get composition underlying object names
 
-    DATA(lo_repo_object_fact) = zzap_repo_object_factory=>get_instance( iv_buffering_ind = abap_true ).
+    DATA(lo_repo_object_fact) = z_xco_repo_object_factory=>get_instance( iv_buffering_ind = abap_true ).
 
     TYPES:
       BEGIN OF ts_info_composition,
-        object_name            TYPE zzap_repo_object_factory=>tv_object_name,
-        underlying_object_name TYPE zzap_repo_object_factory=>tv_object_name,
+        object_name            TYPE c LENGTH 30,
+        underlying_object_name TYPE c LENGTH 30,
       END OF ts_info_composition.
     " TODO: variable is assigned but never used (ABAP cleaner)
     DATA lt_info_compositions TYPE STANDARD TABLE OF ts_info_composition WITH EMPTY KEY.
@@ -678,15 +678,17 @@ CLASS Z_XCO_CDS_VIEW_ENTITY IMPLEMENTATION.
       DATA(lo_repo_object) = lo_repo_object_fact->get_repository_object(
           iv_object_type = 'DDLS'
           iv_object_name = CONV #( <ls_temp_composition>-entity_name ) ).
-      DATA(lo_cds_view) = CAST zzap_cds_view_bo( lo_repo_object ).
+
+      DATA(lo_cds_view) = CAST z_xco_generic_cds_view_if( lo_repo_object ).
+
       DATA(ls_cds_view_data) = lo_cds_view->get_data(
-        is_select_data = VALUE #( underlying_object = abap_true ) ).
+        select_data = VALUE #( underlying_object = abap_true ) ).
 
       APPEND INITIAL LINE TO lt_info_compositions
              ASSIGNING FIELD-SYMBOL(<ls_info_composition>).
 
       <ls_info_composition>-object_name            = <ls_temp_composition>-entity_name.
-      <ls_info_composition>-underlying_object_name = ls_cds_view_data-underlying_object_key-name.
+      <ls_info_composition>-underlying_object_name = ls_cds_view_data-data_source-name.
 
     ENDLOOP.
 

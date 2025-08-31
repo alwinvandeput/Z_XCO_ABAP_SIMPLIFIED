@@ -17,7 +17,7 @@ CLASS z_xco_cds_view_deep_read_dp DEFINITION
       BEGIN OF ts_cds_view_deep_data,
         root_cds_view_name TYPE z_xco_cds_view_entity=>tv_cds_object_name,
         layers             TYPE tt_layers,
-        database_tables    TYPE STANDARD TABLE OF zzap_db_table_bo=>ts_data WITH EMPTY KEY,
+        database_tables    TYPE STANDARD TABLE OF Z_XCO_DDIC_DATABASE_TABLE=>ts_data WITH EMPTY KEY,
       END OF ts_cds_view_deep_data.
 
     METHODS read_in_layers
@@ -108,8 +108,8 @@ CLASS Z_XCO_CDS_VIEW_DEEP_READ_DP IMPLEMENTATION.
 **        iv_object_type = 'DDLS'
 **        iv_object_name = CONV #( iv_cds_view_name ) ) ).
 
-    DATA(lo_data_definition_object) = z_xco_cds_dd_object_factory=>get_factory(
-      )->get_cds_object_by_name( iv_cds_view_name ).
+    DATA(lo_data_definition_object) = z_xco_cds_data_definition_fact=>get_factory(
+      )->get_instance( iv_cds_view_name ).
 
     IF lo_data_definition_object IS NOT INSTANCE OF z_xco_generic_cds_view_if.
       "CDS Object &1 is not a view.
@@ -127,7 +127,7 @@ CLASS Z_XCO_CDS_VIEW_DEEP_READ_DP IMPLEMENTATION.
     " Add Database Table
     IF es_cds_view_data-data_source-type = 'TABL'.
 
-      DATA(lo_db_table_bo) = zzap_db_table_bo=>get_instance( CONV #( es_cds_view_data-data_source-name ) ).
+      DATA(lo_db_table_bo) = Z_XCO_DDIC_DATABASE_TABLE=>get_instance( CONV #( es_cds_view_data-data_source-name ) ).
       DATA(ls_db_table_data) = lo_db_table_bo->get_data( ).
       APPEND ls_db_table_data TO cs_data-database_tables.
 
@@ -149,4 +149,5 @@ CLASS Z_XCO_CDS_VIEW_DEEP_READ_DP IMPLEMENTATION.
     ENDLOOP.
 
   ENDMETHOD.
+
 ENDCLASS.

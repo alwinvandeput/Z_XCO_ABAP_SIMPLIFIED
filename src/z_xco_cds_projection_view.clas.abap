@@ -1,5 +1,5 @@
 CLASS z_xco_cds_projection_view DEFINITION
-  INHERITING FROM z_xco_cds_dd_abstract_object
+  INHERITING FROM z_xco_cds_data_definition
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -232,4 +232,5 @@ CLASS Z_XCO_CDS_PROJECTION_VIEW IMPLEMENTATION.
     ENDLOOP.
 
   ENDMETHOD.
+
 ENDCLASS.
