@@ -178,7 +178,9 @@ CLASS z_xco_cds_view_entity DEFINITION
     METHODS _get_compositions
       IMPORTING iv_layer_no            TYPE i OPTIONAL
                 io_view_entity         TYPE REF TO if_xco_cds_view_entity
-      RETURNING VALUE(rt_compositions) TYPE tt_compositions.
+      RETURNING VALUE(rt_compositions) TYPE tt_compositions
+      RAISING
+        zcx_xco_error.
 
     METHODS _get_associations
       IMPORTING io_view_entity         TYPE REF TO if_xco_cds_view_entity
@@ -420,7 +422,10 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
 
   METHOD z_xco_generic_cds_view_if~get_data.
 
-    DATA(ls_data) = get_data( ).
+    DATA(ls_data) = get_data(
+      is_select_data = value #(
+        underlying_object = select_data-underlying_object
+      ) ).
 
     rs_view_abstract_data = VALUE #(
       name = ls_data-name

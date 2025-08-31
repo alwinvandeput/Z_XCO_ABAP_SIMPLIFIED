@@ -13,7 +13,9 @@ CLASS z_xco_repo_object_factory DEFINITION
       "TODO specify data type
       IMPORTING iv_object_type     TYPE string
                 iv_object_name     TYPE string
-      RETURNING VALUE(repo_object) TYPE REF TO z_xco_repo_abstract_object.
+      RETURNING VALUE(repo_object) TYPE REF TO z_xco_repository_object
+      RAISING
+        zcx_xco_error.
 
   PROTECTED SECTION.
   PRIVATE SECTION.
@@ -60,7 +62,11 @@ CLASS z_xco_repo_object_factory IMPLEMENTATION.
 
         DATA(data_definition_factory) = z_xco_CDS_data_definition_fact=>get_factory( ).
 
-        DATA(data_definition) = data_definition_factory->get_instance( CONV #( iv_object_name ) ).
+        repo_object = data_definition_factory->get_instance( CONV #( iv_object_name ) ).
+
+      WHEN OTHERS.
+
+        ASSERT 1 = 0.
 
     ENDCASE.
 

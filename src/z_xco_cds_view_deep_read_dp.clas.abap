@@ -38,15 +38,13 @@ CLASS z_xco_cds_view_deep_read_dp DEFINITION
         cs_deep_layer    TYPE ts_layer
         cs_data          TYPE ts_cds_view_deep_data
       RAISING
-        zcx_xco_error
-      .
+        zcx_xco_error.
 
 ENDCLASS.
 
 
 
 CLASS Z_XCO_CDS_VIEW_DEEP_READ_DP IMPLEMENTATION.
-
 
   METHOD read_in_layers.
 

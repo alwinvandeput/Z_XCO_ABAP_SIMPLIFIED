@@ -1,5 +1,5 @@
 CLASS z_xco_cds_data_definition DEFINITION
-  INHERITING FROM z_xco_repo_abstract_object
+  INHERITING FROM z_xco_repository_object
   PUBLIC
   ABSTRACT
   CREATE PUBLIC .
@@ -20,7 +20,7 @@ ENDCLASS.
 
 
 
-CLASS Z_XCO_CDS_DATA_DEFINITION IMPLEMENTATION.
+CLASS z_xco_cds_data_definition IMPLEMENTATION.
 
 
   METHOD _get_repository_object_type.

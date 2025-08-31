@@ -15,7 +15,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
     DATA(lo_data_provider) = NEW z_xco_cds_view_deep_read_dp( ).
 
     DATA(ls_cds_view_deep_data) = lo_data_provider->read_in_layers(
-      'ZSDC_SLSORDERTP' ).
+      'ZZAPC_SALESORDER' ).
 
     cl_abap_unit_assert=>assert_not_initial( ls_cds_view_deep_data ).
 
