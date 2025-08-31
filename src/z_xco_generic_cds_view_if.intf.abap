@@ -27,8 +27,10 @@ INTERFACE z_xco_generic_cds_view_if
 
   TYPES:
     BEGIN OF ts_field,
-      name       TYPE sxco_cds_object_name,
-      alias_name TYPE sxco_ddef_alias_name,
+      name                           TYPE sxco_cds_object_name,
+      alias_name                     TYPE sxco_ddef_alias_name,
+      direct_annotations             TYPE sxco_t_cds_annotations,
+      metadata_extension_annotations TYPE sxco_t_cds_annotations,
     END OF ts_field,
     tt_fields TYPE STANDARD TABLE OF ts_field WITH EMPTY KEY.
 
@@ -48,7 +50,9 @@ INTERFACE z_xco_generic_cds_view_if
 
   METHODS get_data
     "TODO implement select_data in implementing classes
-    IMPORTING select_data                  TYPE ts_select_data optional
-    RETURNING VALUE(rs_view_abstract_data) TYPE ts_data.
+    IMPORTING select_data                  TYPE ts_select_data OPTIONAL
+    RETURNING VALUE(rs_view_abstract_data) TYPE ts_data
+    RAISING
+              zcx_xco_error.
 
 ENDINTERFACE.

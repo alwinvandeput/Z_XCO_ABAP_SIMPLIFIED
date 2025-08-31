@@ -28,11 +28,13 @@ CLASS z_xco_cds_projection_view DEFINITION
 
     TYPES:
       BEGIN OF ts_field,
-        key_indicator              TYPE abap_bool,
-        name                       TYPE sxco_cds_object_name,
-        alias_name                      TYPE sxco_ddef_alias_name,
-        expression                 TYPE REF TO if_xco_ddl_expression,
-        redirected_to_compos_child TYPE sxco_cds_object_name,
+        key_indicator                  TYPE abap_bool,
+        name                           TYPE sxco_cds_object_name,
+        alias_name                     TYPE sxco_ddef_alias_name,
+        expression                     TYPE REF TO if_xco_ddl_expression,
+        redirected_to_compos_child     TYPE sxco_cds_object_name,
+        direct_annotations             TYPE sxco_t_cds_annotations,
+        metadata_extension_annotations TYPE sxco_t_cds_annotations,
       END OF ts_field,
       tt_fields TYPE STANDARD TABLE OF ts_field WITH EMPTY KEY.
 
@@ -80,7 +82,7 @@ ENDCLASS.
 
 
 
-CLASS Z_XCO_CDS_PROJECTION_VIEW IMPLEMENTATION.
+CLASS z_xco_cds_projection_view IMPLEMENTATION.
 
 
   METHOD get_data.
@@ -156,6 +158,7 @@ CLASS Z_XCO_CDS_PROJECTION_VIEW IMPLEMENTATION.
         name = ls_data-data_source-name
         alias_name = ls_data-data_source-alias_name
       )
+
       compositions = VALUE #(
         FOR <ls_field> IN ls_data-fields
           WHERE ( redirected_to_compos_child IS NOT INITIAL )
@@ -163,11 +166,14 @@ CLASS Z_XCO_CDS_PROJECTION_VIEW IMPLEMENTATION.
              alias_name      = <ls_field>-name
           )
       )
+
       fields = VALUE #(
         FOR <ls_field> IN ls_data-fields
           WHERE ( redirected_to_compos_child IS INITIAL )
           ( name       = <ls_field>-name
-            alias_name = <ls_field>-alias_name )
+            alias_name = <ls_field>-alias_name
+            direct_annotations = <ls_field>-direct_annotations
+            metadata_extension_annotations = <ls_field>-metadata_extension_annotations )
       )
     ).
 
@@ -227,6 +233,11 @@ CLASS Z_XCO_CDS_PROJECTION_VIEW IMPLEMENTATION.
 *ls_field_content-type
 *ls_field_content-virtual_indicator
 
+      DATA(lo_metadata_extension) = xco_cp_cds=>annotations->metadata_extension->of( <lo_field> ).
+      <ls_target_field>-metadata_extension_annotations = lo_metadata_extension->get( ).
+
+      DATA(lo_annotations) = xco_cp_cds=>annotations->direct->of( <lo_field> ).
+      <ls_target_field>-direct_annotations = lo_annotations->get( ).
 
 
     ENDLOOP.

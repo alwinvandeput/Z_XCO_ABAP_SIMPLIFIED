@@ -54,103 +54,103 @@ ENDCLASS.
 CLASS z_xco_rap_serv_bindg_deep_dp IMPLEMENTATION.
 
 
-METHOD deep_read_service_binding.
+  METHOD deep_read_service_binding.
 
-  rs_data-service_binding = _set_service_binding_version(
-    iv_service_binding_name = iv_service_binding_name
-    iv_service_name         = iv_service_name
-    iv_version              = iv_version ).
+    rs_data-service_binding = _set_service_binding_version(
+      iv_service_binding_name = iv_service_binding_name
+      iv_service_name         = iv_service_name
+      iv_version              = iv_version ).
 
-  rs_data-service_definition = _set_service_definition(
-    iv_service_definition_name = rs_data-service_binding-service_definition_name ).
+    rs_data-service_definition = _set_service_definition(
+      iv_service_definition_name = rs_data-service_binding-service_definition_name ).
 
-  READ TABLE rs_data-service_definition-exposures
-    WITH KEY alias_name = iv_sd_root_entity_alias_name
-    ASSIGNING FIELD-SYMBOL(<ls_exposure>).
+    READ TABLE rs_data-service_definition-exposures
+      WITH KEY alias_name = iv_sd_root_entity_alias_name
+      ASSIGNING FIELD-SYMBOL(<ls_exposure>).
 
-  IF sy-subrc <> 0.
-    "Root Entity Alias Name &2 not found in Service Definition &1.
-    RAISE EXCEPTION TYPE zcx_xco_error
-          MESSAGE e002
-          WITH
-            rs_data-service_definition-name
-            iv_sd_root_entity_alias_name.
-  ENDIF.
+    IF sy-subrc <> 0.
+      "Root Entity Alias Name &2 not found in Service Definition &1.
+      RAISE EXCEPTION TYPE zcx_xco_error
+            MESSAGE e002
+            WITH
+              rs_data-service_definition-name
+              iv_sd_root_entity_alias_name.
+    ENDIF.
 
-  DATA(dp) = NEW z_xco_cds_view_deep_read_dp( ).
-  DATA(ls_data) = dp->read_in_layers( <ls_exposure>-name ).
+    DATA(dp) = NEW z_xco_cds_view_deep_read_dp( ).
+    rs_data-cds_view_deep_data = dp->read_in_layers( <ls_exposure>-name ).
 
-ENDMETHOD.
+  ENDMETHOD.
 
 
-METHOD _set_service_binding_version.
+  METHOD _set_service_binding_version.
 
-  " Set Service Name
-  DATA lv_service_name TYPE sxco_srvb_service_name.
+    " Set Service Name
+    DATA lv_service_name TYPE sxco_srvb_service_name.
 
-  IF iv_service_name IS INITIAL.
-    lv_service_name = iv_service_binding_name.
-  ELSE.
-    lv_service_name = iv_service_name.
-  ENDIF.
+    IF iv_service_name IS INITIAL.
+      lv_service_name = iv_service_binding_name.
+    ELSE.
+      lv_service_name = iv_service_name.
+    ENDIF.
 
-  " Set Version
-  DATA lv_version TYPE sxco_srvb_service_version.
-  IF iv_version IS INITIAL.
-    lv_version = 0001.
-  ELSE.
-    lv_version = iv_version.
-  ENDIF.
+    " Set Version
+    DATA lv_version TYPE sxco_srvb_service_version.
+    IF iv_version IS INITIAL.
+      lv_version = 0001.
+    ELSE.
+      lv_version = iv_version.
+    ENDIF.
 
-  DATA(lo_service_binding) = z_xco_rap_service_binding=>get_instance( iv_service_binding_name ).
+    DATA(lo_service_binding) = z_xco_rap_service_binding=>get_instance( iv_service_binding_name ).
 
-  DATA(ls_serv_binding_data) = lo_service_binding->get_data( ).
+    DATA(ls_serv_binding_data) = lo_service_binding->get_data( ).
 
-  rs_result_service_binding-service_binding_name = ls_serv_binding_data-name.
-  rs_result_service_binding-service_binding_description = ls_serv_binding_data-description.
-  rs_result_service_binding-service_binding_type = ls_serv_binding_data-binding_type.
+    rs_result_service_binding-service_binding_name = ls_serv_binding_data-name.
+    rs_result_service_binding-service_binding_description = ls_serv_binding_data-description.
+    rs_result_service_binding-service_binding_type = ls_serv_binding_data-binding_type.
 
-  " TODO: variable is assigned but never used (ABAP cleaner)
-  DATA(lv_found_ind) = abap_true.
+    " TODO: variable is assigned but never used (ABAP cleaner)
+    DATA(lv_found_ind) = abap_true.
 
-  LOOP AT ls_serv_binding_data-services
-       ASSIGNING FIELD-SYMBOL(<ls_service>)
-       WHERE name = lv_service_name.
+    LOOP AT ls_serv_binding_data-services
+         ASSIGNING FIELD-SYMBOL(<ls_service>)
+         WHERE name = lv_service_name.
 
-    rs_result_service_binding-service_name = <ls_service>-name.
+      rs_result_service_binding-service_name = <ls_service>-name.
 
-    LOOP AT <ls_service>-versions
-      " TODO: variable is assigned but never used (ABAP cleaner)
-         ASSIGNING FIELD-SYMBOL(<ls_version>)
-         WHERE version = lv_version.
+      LOOP AT <ls_service>-versions
+        " TODO: variable is assigned but never used (ABAP cleaner)
+           ASSIGNING FIELD-SYMBOL(<ls_version>)
+           WHERE version = lv_version.
 
-      rs_result_service_binding-version = <ls_version>-version.
-      rs_result_service_binding-service_definition_name = <ls_version>-service_definition_name.
+        rs_result_service_binding-version = <ls_version>-version.
+        rs_result_service_binding-service_definition_name = <ls_version>-service_definition_name.
 
-      DATA(lv_found) = abap_true.
+        DATA(lv_found) = abap_true.
+
+      ENDLOOP.
 
     ENDLOOP.
 
-  ENDLOOP.
+    IF lv_found = abap_false.
+      "Service binding: &1 service: &2, version: &3 not found.
+      RAISE EXCEPTION TYPE zcx_xco_error
+            MESSAGE e001
+            WITH
+              iv_service_binding_name
+              lv_service_name
+              lv_version.
+    ENDIF.
 
-  IF lv_found = abap_false.
-    "Service binding: &1 service: &2, version: &3 not found.
-    RAISE EXCEPTION TYPE zcx_xco_error
-          MESSAGE e001
-          WITH
-            iv_service_binding_name
-            lv_service_name
-            lv_version.
-  ENDIF.
-
-ENDMETHOD.
+  ENDMETHOD.
 
 
-METHOD _set_service_definition.
+  METHOD _set_service_definition.
 
-  DATA(lo_service_definition) = z_xco_rap_service_definition=>get_instance( iv_service_definition_name ).
+    DATA(lo_service_definition) = z_xco_rap_service_definition=>get_instance( iv_service_definition_name ).
 
-  rs_result_service_definition = lo_service_definition->get_data( ).
+    rs_result_service_definition = lo_service_definition->get_data( ).
 
-ENDMETHOD.
+  ENDMETHOD.
 ENDCLASS.

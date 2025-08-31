@@ -16,7 +16,9 @@ CLASS ltcl_unit_test DEFINITION FINAL FOR TESTING
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     " Helper methods
     METHODS _create_cds_view
-      IMPORTING is_create TYPE z_xco_cds_view_entity=>ts_create.
+      IMPORTING is_create TYPE z_xco_cds_view_entity=>ts_create
+      RAISING
+        zcx_xco_error.
 
 ENDCLASS.
 

@@ -49,10 +49,12 @@ CLASS z_xco_cds_view_entity DEFINITION
 
     TYPES:
       BEGIN OF ts_field,
-        key_indicator TYPE abap_boolean,
-        name          TYPE sxco_cds_field_name,
-        alias_name    TYPE sxco_ddef_alias_name,
-        annotations   TYPE z_xco_cds_annotation_converter=>tt_annotations,
+        key_indicator                  TYPE abap_boolean,
+        name                           TYPE sxco_cds_field_name,
+        alias_name                     TYPE sxco_ddef_alias_name,
+        annotations                    TYPE z_xco_cds_annotation_converter=>tt_annotations,
+        direct_annotations             TYPE sxco_t_cds_annotations,
+        metadata_extension_annotations TYPE sxco_t_cds_annotations,
       END OF ts_field,
       tt_fields TYPE STANDARD TABLE OF ts_field WITH EMPTY KEY.
 
@@ -153,7 +155,7 @@ CLASS z_xco_cds_view_entity DEFINITION
       IMPORTING is_select_data TYPE ts_select_data OPTIONAL
       RETURNING VALUE(rs_data) TYPE ts_data
       RAISING
-        zcx_xco_error.
+                zcx_xco_error.
 
     METHODS: get_key REDEFINITION.
 
@@ -182,7 +184,7 @@ CLASS z_xco_cds_view_entity DEFINITION
                 io_view_entity         TYPE REF TO if_xco_cds_view_entity
       RETURNING VALUE(rt_compositions) TYPE tt_compositions
       RAISING
-        zcx_xco_error.
+                zcx_xco_error.
 
     METHODS _get_associations
       IMPORTING io_view_entity         TYPE REF TO if_xco_cds_view_entity
@@ -333,8 +335,9 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
 
   METHOD get_data.
 
-    DATA(lo_view_entity) = xco_cp_cds=>view_entity( gv_cds_view_name ).
+    rs_data-name = gv_cds_view_name.
 
+    DATA(lo_view_entity) = xco_cp_cds=>view_entity( gv_cds_view_name ).
 
     DATA(lo_content) = lo_view_entity->content( ).
     DATA(ls_content) = lo_content->get( ).
@@ -349,7 +352,7 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
     "TODO: The name is in capitals, not camel case.
     IF is_select_data IS INITIAL OR
        is_select_data-header = abap_true.
-      rs_data-name              = lo_view_entity->name.
+
       rs_data-short_description = ls_content-short_description.
       rs_data-root_indicator    = ls_content-root_indicator.
     ENDIF.
@@ -425,7 +428,7 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
   METHOD z_xco_generic_cds_view_if~get_data.
 
     DATA(ls_data) = get_data(
-      is_select_data = value #(
+      is_select_data = VALUE #(
         underlying_object = select_data-underlying_object
       ) ).
 
@@ -447,7 +450,9 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
       fields = VALUE #(
         FOR <ls_field> IN ls_data-fields
           ( name       = <ls_field>-name
-            alias_name = <ls_field>-alias_name )
+            alias_name = <ls_field>-alias_name
+            direct_annotations = <ls_field>-direct_annotations
+            metadata_extension_annotations = <ls_field>-metadata_extension_annotations )
       )
     ).
 
@@ -945,6 +950,12 @@ CLASS z_xco_cds_view_entity IMPLEMENTATION.
       <ls_field>-name = lv_source_field_name.
       <ls_field>-key_indicator = ls_field-key_indicator.
       <ls_field>-alias_name = ls_field-alias.
+
+      DATA(lo_metadata_extension) = xco_cp_cds=>annotations->metadata_extension->of( lo_field ).
+      <ls_field>-metadata_extension_annotations = lo_metadata_extension->get( ).
+
+      DATA(lo_direct_annotations) = xco_cp_cds=>annotations->direct->of( lo_field ).
+      <ls_field>-direct_annotations = lo_direct_annotations->get( ).
 
     ENDLOOP.
 

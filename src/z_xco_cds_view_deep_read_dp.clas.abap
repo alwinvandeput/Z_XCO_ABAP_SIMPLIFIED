@@ -127,6 +127,9 @@ CLASS Z_XCO_CDS_VIEW_DEEP_READ_DP IMPLEMENTATION.
 
       DATA(lo_db_table_bo) = Z_XCO_DDIC_DATABASE_TABLE=>get_instance( CONV #( es_cds_view_data-data_source-name ) ).
       DATA(ls_db_table_data) = lo_db_table_bo->get_data( ).
+
+      ls_db_table_data-name = to_upper( ls_db_table_data-name ).
+
       APPEND ls_db_table_data TO cs_data-database_tables.
 
     ENDIF.

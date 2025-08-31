@@ -30,13 +30,19 @@ CLASS z_xco_ddic_data_element DEFINITION
 
     TYPES:
       BEGIN OF ts_data,
-        name              TYPE sxco_ad_object_name,
-        short_description TYPE if_xco_cp_gen_dtel_s_form=>tv_short_description,
+        name                TYPE sxco_ad_object_name,
+        short_description   TYPE if_xco_cp_gen_dtel_s_form=>tv_short_description,
 
-        type_category     TYPE tv_type_category,
-        built_in_type     TYPE ts_built_in_type,
+        type_category       TYPE tv_type_category,
+        built_in_type       TYPE ts_built_in_type,
 
-        domain_name       TYPE z_xco_ddic_domain=>tv_domain_name,
+        domain_name         TYPE z_xco_ddic_domain=>tv_domain_name,
+
+        short_field_label   TYPE if_xco_dtel_content=>ts_field_label,
+        medium_field_label  TYPE if_xco_dtel_content=>ts_field_label,
+        long_field_label    TYPE if_xco_dtel_content=>ts_field_label,
+        heading_field_label TYPE if_xco_dtel_content=>ts_field_label,
+
       END OF ts_data.
 
     TYPES:
@@ -67,7 +73,7 @@ ENDCLASS.
 
 
 
-CLASS Z_XCO_DDIC_DATA_ELEMENT IMPLEMENTATION.
+CLASS z_xco_ddic_data_element IMPLEMENTATION.
 
 
   METHOD create_or_update_instance.
@@ -166,6 +172,11 @@ CLASS Z_XCO_DDIC_DATA_ELEMENT IMPLEMENTATION.
       rs_data-built_in_type-decimals = lo_type->decimals.
       RETURN.
     ENDIF.
+
+    rs_data-short_field_label = ls_xco_data_element_content-short_field_label.
+    rs_data-medium_field_label = ls_xco_data_element_content-medium_field_label.
+    rs_data-long_field_label = ls_xco_data_element_content-long_field_label.
+    rs_data-heading_field_label = ls_xco_data_element_content-heading_field_label.
 
     DATA(lo_domain) = lo_data_type->get_domain( ).
     IF lo_domain IS NOT INITIAL.
