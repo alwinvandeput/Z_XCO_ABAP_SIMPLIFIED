@@ -23,10 +23,10 @@ CLASS z_xco_rap_service_binding DEFINITION
 
     TYPES:
       BEGIN OF ts_data,
-          name         TYPE tv_name,
-          description  TYPE if_xco_cp_gen_srvd_s_form=>tv_short_description,
-          binding_type TYPE REF TO cl_xco_srvb_binding_type,
-        services TYPE tt_services,
+        name         TYPE tv_name,
+        description  TYPE if_xco_cp_gen_srvd_s_form=>tv_short_description,
+        binding_type TYPE REF TO cl_xco_srvb_binding_type,
+        services     TYPE tt_services,
       END OF ts_data.
 
     TYPES:
@@ -60,7 +60,7 @@ ENDCLASS.
 
 
 
-CLASS Z_XCO_RAP_SERVICE_BINDING IMPLEMENTATION.
+CLASS z_xco_rap_service_binding IMPLEMENTATION.
 
 
   METHOD create_or_update_instance.
@@ -109,6 +109,9 @@ CLASS Z_XCO_RAP_SERVICE_BINDING IMPLEMENTATION.
 
     DATA(ls_content) = lo_service_binding->content( )->get( ).
     rs_data-description = ls_content-short_description.
+
+    DATA(ls_odata_v4_ui) = xco_cp_service_binding=>binding_type->odata_v4_ui->value.
+    DATA(ls_odata_v4_web_api) = xco_cp_service_binding=>binding_type->odata_v4_web_api->value.
     rs_data-binding_type = ls_content-binding_type.
 
     DATA(lt_services) = lo_service_binding->services->all->get( ).
