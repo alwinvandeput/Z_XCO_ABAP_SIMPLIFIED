@@ -22,6 +22,13 @@ CLASS z_xco_rap_serv_bindg_deep_dp DEFINITION
         cds_view_deep_data TYPE z_xco_cds_view_deep_read_dp=>ts_cds_view_deep_data,
       END OF ts_data.
 
+    TYPES:
+      BEGIN OF ts_data2,
+        service_binding    TYPE ts_service_binding,
+        service_definition TYPE z_xco_rap_service_definition=>ts_data,
+        cds_views          TYPE STANDARD TABLE OF z_xco_cds_view_deep_read_dp=>ts_deep_read_cds_view WITH EMPTY KEY,
+      END OF ts_data2.
+
     METHODS deep_read_service_binding
       IMPORTING iv_service_binding_name      TYPE z_xco_rap_service_binding=>tv_name
                 iv_service_name              TYPE sxco_srvb_service_name OPTIONAL
@@ -31,21 +38,42 @@ CLASS z_xco_rap_serv_bindg_deep_dp DEFINITION
       RAISING
                 zcx_xco_error.
 
+    METHODS deep_read_service_binding_2
+      IMPORTING iv_service_binding_name      TYPE z_xco_rap_service_binding=>tv_name
+                iv_service_name              TYPE sxco_srvb_service_name OPTIONAL
+                iv_version                   TYPE sxco_srvb_service_version OPTIONAL
+                iv_sd_root_entity_alias_name TYPE z_xco_rap_service_definition=>ts_exposure-alias_name
+      RETURNING VALUE(rs_data_2)             TYPE ts_data2
+      RAISING
+                zcx_xco_error.
+
   PROTECTED SECTION.
 
   PRIVATE SECTION.
     METHODS _set_service_binding_version
-      IMPORTING
-                iv_service_binding_name          TYPE z_xco_rap_service_binding=>tv_name
+      IMPORTING iv_service_binding_name          TYPE z_xco_rap_service_binding=>tv_name
                 iv_service_name                  TYPE sxco_srvb_service_name
                 iv_version                       TYPE sxco_srvb_service_version
       RETURNING VALUE(rs_result_service_binding) TYPE ts_data-service_binding
+      RAISING   zcx_xco_error.
+
+    METHODS _set_service_definition
+      IMPORTING iv_service_definition_name          TYPE sxco_srvd_object_name
+      RETURNING VALUE(rs_result_service_definition) TYPE ts_data-service_definition.
+
+    METHODS _down_deep_read_main_entity
+      IMPORTING iv_service_binding_name      TYPE z_xco_rap_service_binding=>tv_name
+                iv_service_name              TYPE sxco_srvb_service_name
+                iv_version                   TYPE sxco_srvb_service_version
+                iv_sd_root_entity_alias_name TYPE z_xco_rap_service_definition=>ts_exposure-alias_name
+      RETURNING VALUE(rs_data_2)             TYPE ts_data2
       RAISING
                 zcx_xco_error.
-    METHODS _set_service_definition
-      IMPORTING
-                iv_service_definition_name          TYPE sxco_srvd_object_name
-      RETURNING VALUE(rs_result_service_definition) TYPE ts_data-service_definition.
+
+    METHODS _get_bo_root_cds_view.
+    METHODS _get_child_bo_entities.
+    METHODS _down_deep_read_child_entities.
+    METHODS _up_deep_read_child_entities.
 
 ENDCLASS.
 
@@ -153,4 +181,79 @@ CLASS z_xco_rap_serv_bindg_deep_dp IMPLEMENTATION.
     rs_result_service_definition = lo_service_definition->get_data( ).
 
   ENDMETHOD.
+
+
+  METHOD deep_read_service_binding_2.
+
+    "Down Deep Read Main Entity (from Service Binding Layer to Database Layer)
+    rs_data_2 = _down_deep_read_main_entity(
+      iv_service_binding_name      = iv_service_binding_name
+      iv_service_name              = iv_service_name
+      iv_version                   = iv_version
+      iv_sd_root_entity_alias_name = iv_sd_root_entity_alias_name ).
+
+    "Get BO Root CDS View (can be CDS Classic View or CDS View Entity)
+    _get_bo_root_cds_view( ).
+
+    "Get Child BO Entities
+    _get_child_bo_entities( ).
+
+    "Down Deep Read Child Entities (from BO Layer to Database Layer)
+    _down_deep_read_child_entities( ).
+
+    "Up Deep Read Child Entities (from BO Layer to Service Binding Layer
+    _up_deep_read_child_entities( ).
+
+  ENDMETHOD.
+
+  METHOD _down_deep_read_main_entity.
+
+    rs_data_2-service_binding = _set_service_binding_version(
+      iv_service_binding_name = iv_service_binding_name
+      iv_service_name         = iv_service_name
+      iv_version              = iv_version ).
+
+    rs_data_2-service_definition = _set_service_definition(
+      iv_service_definition_name = rs_data_2-service_binding-service_definition_name ).
+
+    READ TABLE rs_data_2-service_definition-exposures
+      WITH KEY alias_name = iv_sd_root_entity_alias_name
+      ASSIGNING FIELD-SYMBOL(<ls_exposure>).
+
+    IF sy-subrc <> 0.
+      "Root Entity Alias Name &2 not found in Service Definition &1.
+      RAISE EXCEPTION TYPE zcx_xco_error
+            MESSAGE e002
+            WITH
+              rs_data_2-service_definition-name
+              iv_sd_root_entity_alias_name.
+    ENDIF.
+
+    APPEND INITIAL LINE TO rs_data_2-cds_views
+      ASSIGNING FIELD-SYMBOL(<ls_cds_view>).
+    DATA(dp) = NEW z_xco_cds_view_deep_read_dp( ).
+    <ls_cds_view> = dp->deep_read_cds_view( <ls_exposure>-name ).
+
+  ENDMETHOD.
+
+
+  METHOD _get_bo_root_cds_view.
+
+  ENDMETHOD.
+
+
+  METHOD _get_child_bo_entities.
+
+  ENDMETHOD.
+
+
+  METHOD _down_deep_read_child_entities.
+
+  ENDMETHOD.
+
+
+  METHOD _up_deep_read_child_entities.
+
+  ENDMETHOD.
+
 ENDCLASS.

@@ -5,19 +5,24 @@ CLASS z_xco_repo_object_factory DEFINITION
 
   PUBLIC SECTION.
 
+    CLASS-METHODS check_exist
+      IMPORTING iv_object_type      TYPE sxco_ar_object_type
+                iv_object_name      TYPE sxco_ar_object_name
+      RETURNING VALUE(rv_exist_ind) TYPE abap_boolean.
+
     CLASS-METHODS get_instance
       IMPORTING iv_buffering_ind TYPE abap_boolean
       RETURNING VALUE(factory)   TYPE REF TO z_xco_repo_object_factory.
 
     METHODS get_repository_object
-      "TODO specify data type
-      IMPORTING iv_object_type     TYPE string
-                iv_object_name     TYPE string
+      IMPORTING iv_object_type     TYPE sxco_ar_object_type
+                iv_object_name     TYPE sxco_ar_object_name
       RETURNING VALUE(repo_object) TYPE REF TO z_xco_repository_object
       RAISING
-        zcx_xco_error.
+                zcx_xco_error.
 
   PROTECTED SECTION.
+
   PRIVATE SECTION.
 
     CLASS-DATA buffered_factory TYPE REF TO z_xco_repo_object_factory.
@@ -30,6 +35,18 @@ ENDCLASS.
 
 
 CLASS z_xco_repo_object_factory IMPLEMENTATION.
+
+  METHOD check_exist.
+
+    DATA(lo_xco_repository_object) =
+      xco_cp_abap_repository=>object->for(
+        EXPORTING
+          iv_type   = iv_object_type
+          iv_name   = iv_object_name ).
+
+    rv_exist_ind = lo_xco_repository_object->exists( ).
+
+  ENDMETHOD.
 
   METHOD get_instance.
 

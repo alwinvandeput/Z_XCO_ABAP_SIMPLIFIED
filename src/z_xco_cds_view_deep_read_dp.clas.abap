@@ -17,8 +17,23 @@ CLASS z_xco_cds_view_deep_read_dp DEFINITION
       BEGIN OF ts_cds_view_deep_data,
         root_cds_view_name TYPE z_xco_cds_view_entity=>tv_cds_object_name,
         layers             TYPE tt_layers,
-        database_tables    TYPE STANDARD TABLE OF Z_XCO_DDIC_DATABASE_TABLE=>ts_data WITH EMPTY KEY,
+        database_tables    TYPE STANDARD TABLE OF z_xco_ddic_database_table=>ts_data WITH EMPTY KEY,
       END OF ts_cds_view_deep_data.
+
+    TYPES:
+      begin of ts_cds_view,
+        cds_view_data  TYPE z_xco_generic_cds_view_if=>ts_data,
+      end of ts_cds_view,
+      BEGIN OF ts_deep_read_cds_view,
+        cds_views           TYPE STANDARD TABLE OF ts_cds_view WITH EMPTY KEY,
+        bo_cds_view_index   TYPE i,
+        database_table_data TYPE z_xco_ddic_database_table=>ts_data,
+      END OF ts_deep_read_cds_view.
+
+    METHODS deep_read_cds_view
+      IMPORTING iv_cds_view_name             TYPE z_xco_cds_view_entity=>tv_cds_object_name
+      RETURNING VALUE(rs_deep_read_cds_view) TYPE ts_deep_read_cds_view
+      RAISING   zcx_xco_error.
 
     METHODS read_in_layers
       IMPORTING iv_cds_view_name TYPE z_xco_cds_view_entity=>tv_cds_object_name
@@ -44,7 +59,76 @@ ENDCLASS.
 
 
 
-CLASS Z_XCO_CDS_VIEW_DEEP_READ_DP IMPLEMENTATION.
+CLASS z_xco_cds_view_deep_read_dp IMPLEMENTATION.
+
+  METHOD deep_read_cds_view.
+
+    DATA(lv_cds_view_name) = iv_cds_view_name.
+
+    DO.
+
+      DATA(lo_data_definition_object) = z_xco_cds_data_definition_fact=>get_factory(
+        )->get_instance( lv_cds_view_name ).
+
+      IF lo_data_definition_object IS NOT INSTANCE OF z_xco_generic_cds_view_if.
+        "CDS Object &1 is not a view.
+        RAISE EXCEPTION TYPE zcx_xco_error
+          MESSAGE e004
+          WITH iv_cds_view_name.
+      ENDIF.
+
+      DATA(lo_generic_cds_view) = CAST z_xco_generic_cds_view_if( lo_data_definition_object ).
+
+      APPEND INITIAL LINE TO rs_deep_read_cds_view-cds_views ASSIGNING FIELD-SYMBOL(<cds_view>).
+      <cds_view>-cds_view_data = lo_generic_cds_view->get_data( ).
+
+      """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+      " Add Behavior Definition
+
+      """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+      " Add Metadata Extension
+
+      """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+      " Add Database Table
+      IF <cds_view>-cds_view_data-data_source-type = 'TABL'.
+
+        DATA(lo_db_table_bo) = z_xco_ddic_database_table=>get_instance( CONV #( <cds_view>-cds_view_data-data_source-name ) ).
+        rs_deep_read_cds_view-database_table_data = lo_db_table_bo->get_data( ).
+
+        EXIT.
+
+      ENDIF.
+*
+*      lv_cds_view_name = <cds_view>-data_source-name.
+
+    ENDDO.
+
+    "Determine bo_cds_view_index
+    "rs_deep_read_cds_view-bo_cds_view_index
+    LOOP AT rs_deep_read_cds_view-cds_views ASSIGNING <cds_view>.
+
+
+
+    ENDLOOP.
+
+
+*
+*    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+*    " Add Compositions
+*
+*    LOOP AT es_cds_view_data-compositions
+*         ASSIGNING FIELD-SYMBOL(<ls_composition>).
+*
+*      _read_cds_view(
+*        EXPORTING
+*          iv_cds_view_name       = <ls_composition>-entity_name
+*        CHANGING
+*          cs_deep_layer          = cs_deep_layer
+*          cs_data                = cs_data ).
+*
+*    ENDLOOP.
+
+  ENDMETHOD.
 
   METHOD read_in_layers.
 
@@ -72,8 +156,7 @@ CLASS Z_XCO_CDS_VIEW_DEEP_READ_DP IMPLEMENTATION.
           es_cds_view_data = DATA(ls_cds_view_data)
         CHANGING
           cs_deep_layer = <ls_deep_layer>
-          cs_data = rs_data
-          ).
+          cs_data = rs_data ).
 
       """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
       " Next Root CDS View
@@ -125,7 +208,7 @@ CLASS Z_XCO_CDS_VIEW_DEEP_READ_DP IMPLEMENTATION.
     " Add Database Table
     IF es_cds_view_data-data_source-type = 'TABL'.
 
-      DATA(lo_db_table_bo) = Z_XCO_DDIC_DATABASE_TABLE=>get_instance( CONV #( es_cds_view_data-data_source-name ) ).
+      DATA(lo_db_table_bo) = z_xco_ddic_database_table=>get_instance( CONV #( es_cds_view_data-data_source-name ) ).
       DATA(ls_db_table_data) = lo_db_table_bo->get_data( ).
 
       ls_db_table_data-name = to_upper( ls_db_table_data-name ).
