@@ -143,6 +143,14 @@ CLASS Z_XCO_CDS_METADATA_EXTENSION IMPLEMENTATION.
 
   METHOD get_instance.
 
+    DATA(lv_exist_ind) = z_xco_repo_object_factory=>check_exist(
+      iv_object_type = 'DDLX'
+      iv_object_name = CONV #(  iv_metadata_extension_name ) ).
+
+    IF lv_exist_ind = abap_false.
+      RETURN.
+    ENDIF.
+
     ro_metadata_extension = NEW #( ).
     ro_metadata_extension->gv_metadata_extension_name = iv_metadata_extension_name.
 

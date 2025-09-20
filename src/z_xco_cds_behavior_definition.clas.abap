@@ -120,6 +120,8 @@ CLASS z_xco_cds_behavior_definition DEFINITION
       IMPORTING is_create                     TYPE ts_create
       RETURNING VALUE(ro_behavior_definition) TYPE REF TO z_xco_cds_behavior_definition.
 
+
+
     METHODS get_data
       RETURNING VALUE(rs_data) TYPE ts_data.
 
@@ -175,7 +177,7 @@ ENDCLASS.
 
 
 
-CLASS Z_XCO_CDS_BEHAVIOR_DEFINITION IMPLEMENTATION.
+CLASS z_xco_cds_behavior_definition IMPLEMENTATION.
 
 
   METHOD create_or_update_instance.
@@ -291,7 +293,16 @@ CLASS Z_XCO_CDS_BEHAVIOR_DEFINITION IMPLEMENTATION.
 
   METHOD get_instance.
 
+    DATA(lv_exist_ind) = z_xco_repo_object_factory=>check_exist(
+      iv_object_type = 'BDEF'
+      iv_object_name = CONV #( iv_behavior_definition_name ) ).
+
+    IF lv_exist_ind = abap_false.
+      RETURN.
+    ENDIF.
+
     ro_behavior_definition = NEW #( ).
+
     ro_behavior_definition->gv_behavior_definition_name = iv_behavior_definition_name.
 
   ENDMETHOD.
