@@ -28,6 +28,7 @@ CLASS ltcl_unit_test IMPLEMENTATION.
 
   METHOD deep_read_service_binding_2.
 
+
     DATA(ls_data) = NEW z_xco_rap_serv_bindg_deep_dp(
       )->deep_read_service_binding_2(
         iv_service_binding_name      = 'ZAP2UI_INVOICE_O4'

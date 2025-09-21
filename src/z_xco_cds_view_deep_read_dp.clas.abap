@@ -21,17 +21,25 @@ CLASS z_xco_cds_view_deep_read_dp DEFINITION
       END OF ts_cds_view_deep_data.
 
     TYPES:
-      BEGIN OF ts_cds_view,
+      BEGIN OF ts_wide_read_cds_view,
         cds_view_data           TYPE z_xco_generic_cds_view_if=>ts_data,
         behavior_data           TYPE z_xco_cds_behavior_definition=>ts_read_data,
         extension_metadata_data TYPE z_xco_cds_metadata_extension=>ts_read_data,
-      END OF ts_cds_view,
+      END OF ts_wide_read_cds_view,
+
       BEGIN OF ts_deep_read_cds_view,
-        cds_views           TYPE STANDARD TABLE OF ts_cds_view WITH EMPTY KEY,
+        cds_views           TYPE STANDARD TABLE OF ts_wide_read_cds_view WITH EMPTY KEY,
         bo_cds_view_index   TYPE i,
         database_table_data TYPE z_xco_ddic_database_table=>ts_data,
       END OF ts_deep_read_cds_view.
 
+    "Read CDS View data, behavior definition, extension metadata
+    METHODS wide_read_cds_view
+      importing iv_cds_view_name type z_xco_cds_data_definition=>tv_cds_object_name
+      RETURNING VALUE(rs_wide_read_cds_view) TYPE ts_wide_read_cds_view
+      RAISING   zcx_xco_error.
+
+    "Read CDS View Data, Deep Sub CDS Views, behavior definitions, extension metadata
     METHODS deep_read_cds_view
       IMPORTING iv_cds_view_name             TYPE z_xco_cds_view_entity=>tv_cds_object_name
       RETURNING VALUE(rs_deep_read_cds_view) TYPE ts_deep_read_cds_view
@@ -69,34 +77,9 @@ CLASS z_xco_cds_view_deep_read_dp IMPLEMENTATION.
 
     DO.
 
-      DATA(lo_data_definition_object) = z_xco_cds_data_definition_fact=>get_factory(
-        )->get_instance( lv_cds_view_name ).
-
-      IF lo_data_definition_object IS NOT INSTANCE OF z_xco_generic_cds_view_if.
-        "CDS Object &1 is not a view.
-        RAISE EXCEPTION TYPE zcx_xco_error
-          MESSAGE e004
-          WITH iv_cds_view_name.
-      ENDIF.
-
-      DATA(lo_generic_cds_view) = CAST z_xco_generic_cds_view_if( lo_data_definition_object ).
-
       APPEND INITIAL LINE TO rs_deep_read_cds_view-cds_views ASSIGNING FIELD-SYMBOL(<cds_view>).
-      <cds_view>-cds_view_data = lo_generic_cds_view->get_data( ).
 
-      """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-      " Add Behavior Definition
-      DATA(lo_behavior_definition) = z_xco_cds_behavior_definition=>get_instance( lv_cds_view_name ).
-      IF lo_behavior_definition IS NOT INITIAL.
-        <cds_view>-behavior_data = lo_behavior_definition->get_data( ).
-      ENDIF.
-
-      """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-      " Add Metadata Extension
-      DATA(lo_metadata_extension) = z_xco_cds_metadata_extension=>get_instance( lv_cds_view_name ).
-      IF lo_metadata_extension IS NOT INITIAL.
-        <cds_view>-extension_metadata_data = lo_metadata_extension->get_data( ).
-      ENDIF.
+      <cds_view> = wide_read_cds_view( lv_cds_view_name ).
 
       """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
       " Add Database Table
@@ -108,6 +91,7 @@ CLASS z_xco_cds_view_deep_read_dp IMPLEMENTATION.
         EXIT.
 
       ENDIF.
+
 
       lv_cds_view_name = <cds_view>-cds_view_data-data_source-name.
 
@@ -243,6 +227,39 @@ CLASS z_xco_cds_view_deep_read_dp IMPLEMENTATION.
           cs_data                = cs_data ).
 
     ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD wide_read_cds_view.
+
+      DATA(lo_data_definition_object) = z_xco_cds_data_definition_fact=>get_factory(
+        )->get_instance( iv_cds_view_name ).
+
+      IF lo_data_definition_object IS NOT INSTANCE OF z_xco_generic_cds_view_if.
+        "CDS Object &1 is not a view.
+        RAISE EXCEPTION TYPE zcx_xco_error
+          MESSAGE e004
+          WITH iv_cds_view_name.
+      ENDIF.
+
+      DATA(lo_generic_cds_view) = CAST z_xco_generic_cds_view_if( lo_data_definition_object ).
+
+      rs_wide_read_cds_view-cds_view_data = lo_generic_cds_view->get_data( ).
+
+      """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+      " Add Behavior Definition
+      DATA(lo_behavior_definition) = z_xco_cds_behavior_definition=>get_instance( iv_cds_view_name ).
+      IF lo_behavior_definition IS NOT INITIAL.
+        rs_wide_read_cds_view-behavior_data = lo_behavior_definition->get_data( ).
+      ENDIF.
+
+      """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+      " Add Metadata Extension
+      DATA(lo_metadata_extension) = z_xco_cds_metadata_extension=>get_instance( iv_cds_view_name ).
+      IF lo_metadata_extension IS NOT INITIAL.
+        rs_wide_read_cds_view-extension_metadata_data = lo_metadata_extension->get_data( ).
+      ENDIF.
+
 
   ENDMETHOD.
 

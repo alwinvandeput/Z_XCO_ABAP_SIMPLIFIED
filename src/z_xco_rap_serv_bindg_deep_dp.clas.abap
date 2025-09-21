@@ -23,11 +23,11 @@ CLASS z_xco_rap_serv_bindg_deep_dp DEFINITION
       END OF ts_data.
 
     TYPES:
-      BEGIN OF ts_data2,
+      BEGIN OF ts_serv_bind_deep_read_2,
         service_binding    TYPE ts_service_binding,
         service_definition TYPE z_xco_rap_service_definition=>ts_data,
-        entities          TYPE STANDARD TABLE OF z_xco_cds_view_deep_read_dp=>ts_deep_read_cds_view WITH EMPTY KEY,
-      END OF ts_data2.
+        entities           TYPE STANDARD TABLE OF z_xco_cds_view_deep_read_dp=>ts_deep_read_cds_view WITH EMPTY KEY,
+      END OF ts_serv_bind_deep_read_2.
 
     METHODS deep_read_service_binding
       IMPORTING iv_service_binding_name      TYPE z_xco_rap_service_binding=>tv_name
@@ -39,11 +39,11 @@ CLASS z_xco_rap_serv_bindg_deep_dp DEFINITION
                 zcx_xco_error.
 
     METHODS deep_read_service_binding_2
-      IMPORTING iv_service_binding_name      TYPE z_xco_rap_service_binding=>tv_name
-                iv_service_name              TYPE sxco_srvb_service_name OPTIONAL
-                iv_version                   TYPE sxco_srvb_service_version OPTIONAL
-                iv_sd_root_entity_alias_name TYPE z_xco_rap_service_definition=>ts_exposure-alias_name
-      RETURNING VALUE(rs_data_2)             TYPE ts_data2
+      IMPORTING iv_service_binding_name       TYPE z_xco_rap_service_binding=>tv_name
+                iv_service_name               TYPE sxco_srvb_service_name OPTIONAL
+                iv_version                    TYPE sxco_srvb_service_version OPTIONAL
+                iv_sd_root_entity_alias_name  TYPE z_xco_rap_service_definition=>ts_exposure-alias_name
+      RETURNING VALUE(rs_serv_bind_deep_read) TYPE ts_serv_bind_deep_read_2
       RAISING
                 zcx_xco_error.
 
@@ -66,14 +66,32 @@ CLASS z_xco_rap_serv_bindg_deep_dp DEFINITION
                 iv_service_name              TYPE sxco_srvb_service_name
                 iv_version                   TYPE sxco_srvb_service_version
                 iv_sd_root_entity_alias_name TYPE z_xco_rap_service_definition=>ts_exposure-alias_name
-      RETURNING VALUE(rs_data_2)             TYPE ts_data2
+      RETURNING VALUE(rs_data_2)             TYPE ts_serv_bind_deep_read_2
       RAISING
                 zcx_xco_error.
 
-    METHODS _get_bo_root_cds_view_index.
-    METHODS _get_child_bo_entities.
+    METHODS _get_child_bo_entities
+      CHANGING cs_serv_bind_deep_read_2 TYPE ts_serv_bind_deep_read_2
+      RAISING  zcx_xco_error.
+
+    METHODS _add_child_entities
+      IMPORTING cds_view  TYPE z_xco_cds_view_deep_read_dp=>ts_wide_read_cds_view
+      CHANGING  cs_data_2 TYPE ts_serv_bind_deep_read_2
+      RAISING   zcx_xco_error.
+
     METHODS _down_deep_read_child_entities.
-    METHODS _up_deep_read_child_entities.
+
+    METHODS _up_deep_read_child_entities
+      CHANGING cs_serv_bind_deep_read_2 TYPE ts_serv_bind_deep_read_2
+      RAISING  zcx_xco_error.
+
+    METHODS _up_read_child_entities
+      IMPORTING
+        wide_read_cds_view       TYPE z_xco_cds_view_deep_read_dp=>ts_wide_read_cds_view
+      CHANGING
+        cs_serv_bind_deep_read_2 TYPE z_xco_rap_serv_bindg_deep_dp=>ts_serv_bind_deep_read_2
+      RAISING
+        zcx_xco_error.
 
 ENDCLASS.
 
@@ -186,20 +204,24 @@ CLASS z_xco_rap_serv_bindg_deep_dp IMPLEMENTATION.
   METHOD deep_read_service_binding_2.
 
     "Down Deep Read Main Entity (from Service Binding Layer to Database Layer)
-    rs_data_2 = _down_deep_read_main_entity(
+    rs_serv_bind_deep_read = _down_deep_read_main_entity(
       iv_service_binding_name      = iv_service_binding_name
       iv_service_name              = iv_service_name
       iv_version                   = iv_version
       iv_sd_root_entity_alias_name = iv_sd_root_entity_alias_name ).
 
     "Get Child BO Entities
-    _get_child_bo_entities( ).
+    _get_child_bo_entities(
+      CHANGING
+        cs_serv_bind_deep_read_2 = rs_serv_bind_deep_read ).
 
     "Down Deep Read Child Entities (from BO Layer to Database Layer)
-    _down_deep_read_child_entities( ).
+    "_down_deep_read_child_entities( ).
 
     "Up Deep Read Child Entities (from BO Layer to Service Binding Layer
-    _up_deep_read_child_entities( ).
+    _up_deep_read_child_entities(
+      CHANGING
+        cs_serv_bind_deep_read_2 = rs_serv_bind_deep_read ).
 
   ENDMETHOD.
 
@@ -234,12 +256,44 @@ CLASS z_xco_rap_serv_bindg_deep_dp IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD _get_bo_root_cds_view_index.
+  METHOD _get_child_bo_entities.
+
+    ASSERT lines( cs_serv_bind_deep_read_2-entities ) = 1.
+
+    ASSIGN cs_serv_bind_deep_read_2-entities[ 1 ] TO FIELD-SYMBOL(<entity>).
+
+    ASSERT <entity>-bo_cds_view_index > 0.
+
+    ASSIGN <entity>-cds_views[ <entity>-bo_cds_view_index ] TO FIELD-SYMBOL(<bo_cds_view>).
+
+    _add_child_entities(
+      EXPORTING
+        cds_view  = <bo_cds_view>
+      CHANGING
+        cs_data_2 = cs_serv_bind_deep_read_2 ).
 
   ENDMETHOD.
 
+  METHOD _add_child_entities.
 
-  METHOD _get_child_bo_entities.
+    LOOP AT cds_view-cds_view_data-compositions ASSIGNING FIELD-SYMBOL(<composition>).
+
+      APPEND INITIAL LINE TO cs_data_2-entities ASSIGNING FIELD-SYMBOL(<child_entity>).
+
+      DATA(dp) = NEW z_xco_cds_view_deep_read_dp( ).
+      <child_entity> = dp->deep_read_cds_view( <composition>-entity_name ).
+
+      ASSERT lines( <child_entity>-cds_views ) > 0.
+
+      ASSIGN <child_entity>-cds_views[ 1 ] TO FIELD-SYMBOL(<child_cds_view>).
+
+      _add_child_entities(
+        EXPORTING
+          cds_view  = <child_cds_view>
+        CHANGING
+          cs_data_2 = cs_data_2 ).
+
+    ENDLOOP.
 
   ENDMETHOD.
 
@@ -250,6 +304,62 @@ CLASS z_xco_rap_serv_bindg_deep_dp IMPLEMENTATION.
 
 
   METHOD _up_deep_read_child_entities.
+
+    ASSERT lines( cs_serv_bind_deep_read_2-entities ) >= 1.
+    ASSIGN cs_serv_bind_deep_read_2-entities[ 1 ] TO FIELD-SYMBOL(<leading_entity>).
+    ASSERT <leading_entity>-bo_cds_view_index > 0.
+
+    DATA(lv_index) = <leading_entity>-bo_cds_view_index - 1.
+
+    WHILE lv_index > 0.
+
+      ASSIGN <leading_entity>-cds_views[ lv_index ] TO FIELD-SYMBOL(<bo_cds_view>).
+
+      _up_read_child_entities(
+        EXPORTING wide_read_cds_view = <bo_cds_view>
+        CHANGING  cs_serv_bind_deep_read_2 = cs_serv_bind_deep_read_2 ).
+
+      lv_index -= 1.
+
+      ASSERT lv_index = 0.
+
+    ENDWHILE.
+
+  ENDMETHOD.
+
+
+  METHOD _up_read_child_entities.
+
+    LOOP AT wide_read_cds_view-cds_view_data-compositions ASSIGNING FIELD-SYMBOL(<composition>).
+
+      DATA(deep_read_cds_view_dp) = NEW z_xco_cds_view_deep_read_dp( ).
+      DATA(child_wide_read_cds_view) = deep_read_cds_view_dp->wide_read_cds_view( <composition>-entity_name ).
+      DATA(found_ind) = abap_false.
+
+      LOOP AT cs_serv_bind_deep_read_2-entities ASSIGNING FIELD-SYMBOL(<entity>).
+
+        ASSIGN <entity>-cds_views[ 1 ] TO FIELD-SYMBOL(<cds_view>).
+
+        IF <cds_view>-cds_view_data-name = child_wide_read_cds_view-cds_view_data-data_source-name.
+
+          INSERT child_wide_read_cds_view INTO <entity>-cds_views INDEX 1.
+
+          _up_read_child_entities(
+            EXPORTING
+              wide_read_cds_view                 = child_wide_read_cds_view
+            CHANGING
+              cs_serv_bind_deep_read_2 = cs_serv_bind_deep_read_2 ).
+
+          found_ind = abap_true.
+          EXIT.
+
+        ENDIF.
+
+      ENDLOOP.
+
+      ASSERT found_ind = abap_true.
+
+    ENDLOOP.
 
   ENDMETHOD.
 
