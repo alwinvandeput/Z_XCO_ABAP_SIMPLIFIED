@@ -29,6 +29,16 @@ CLASS z_xco_cds_metadata_extension DEFINITION
       tt_fields TYPE STANDARD TABLE OF ts_field WITH EMPTY KEY.
 
     TYPES:
+      BEGIN OF ts_read_data,
+        name              TYPE tv_metadata_extension_name,
+*        short_description TYPE if_xco_cp_gen_srvd_s_form=>tv_short_description,
+*        "Values: xco_cp_metadata_extension=>layer->...
+*        layer             TYPE REF TO cl_xco_me_layer,
+*        view              TYPE sxco_cds_object_name,
+*        fields            TYPE tt_fields,
+      END OF ts_read_data.
+
+    TYPES:
       BEGIN OF ts_data,
         name              TYPE tv_metadata_extension_name,
         short_description TYPE if_xco_cp_gen_srvd_s_form=>tv_short_description,
@@ -53,7 +63,7 @@ CLASS z_xco_cds_metadata_extension DEFINITION
       RETURNING VALUE(ro_metadata_extension) TYPE REF TO z_xco_cds_metadata_extension.
 
     METHODS get_data
-      RETURNING VALUE(rs_data) TYPE ts_data.
+      RETURNING VALUE(rs_data) TYPE ts_read_data.
 
   PROTECTED SECTION.
 
@@ -105,38 +115,12 @@ CLASS Z_XCO_CDS_METADATA_EXTENSION IMPLEMENTATION.
 
   METHOD get_data.
 
-*    DATA(lo_metadata_extension) = xco_cp_abap_repository=>object->srvb->for( gv_metadata_extension_name ).
-*
-*    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-*    " Header
-*    rs_data-name        = gv_metadata_extension_name.
-*
-*    DATA(ls_content) = lo_metadata_extension->content( )->get( ).
-*    rs_data-description = ls_content-short_description.
-*    rs_data-binding_type = ls_content-binding_type.
-*
-*    DATA(lt_services) = lo_metadata_extension->services->all->get( ).
-*
-*    LOOP AT lt_services
-*      ASSIGNING FIELD-SYMBOL(<ls_service>).
-*
-*      DATA(lo_versions) = <ls_service>->versions.
-*      DATA(lt_versions) = lo_versions->all->get( ).
-*
-*      LOOP AT lt_versions
-*        ASSIGNING FIELD-SYMBOL(<lv_version>).
-*
-*        DATA(ls_version_content) = <lv_version>->content( )->get( ).
-*
-*        APPEND
-*          VALUE #(
-*            service_definition_name = ls_version_content-service_definition->name
-*            version = <lv_version>->version )
-*          TO rs_data-services.
-*
-*      ENDLOOP.
-*
-*    ENDLOOP.
+    DATA(lo_metadata_extension) = xco_cp_abap_repository=>object->ddlx->for( gv_metadata_extension_name ).
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    " Header
+    rs_data-name        = gv_metadata_extension_name.
+*    rs_data-short_description = ls_content-short_description.
 
   ENDMETHOD.
 

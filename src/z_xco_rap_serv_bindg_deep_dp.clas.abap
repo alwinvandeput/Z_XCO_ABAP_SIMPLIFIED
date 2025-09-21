@@ -26,7 +26,7 @@ CLASS z_xco_rap_serv_bindg_deep_dp DEFINITION
       BEGIN OF ts_data2,
         service_binding    TYPE ts_service_binding,
         service_definition TYPE z_xco_rap_service_definition=>ts_data,
-        cds_views          TYPE STANDARD TABLE OF z_xco_cds_view_deep_read_dp=>ts_deep_read_cds_view WITH EMPTY KEY,
+        entities          TYPE STANDARD TABLE OF z_xco_cds_view_deep_read_dp=>ts_deep_read_cds_view WITH EMPTY KEY,
       END OF ts_data2.
 
     METHODS deep_read_service_binding
@@ -70,7 +70,7 @@ CLASS z_xco_rap_serv_bindg_deep_dp DEFINITION
       RAISING
                 zcx_xco_error.
 
-    METHODS _get_bo_root_cds_view.
+    METHODS _get_bo_root_cds_view_index.
     METHODS _get_child_bo_entities.
     METHODS _down_deep_read_child_entities.
     METHODS _up_deep_read_child_entities.
@@ -192,9 +192,6 @@ CLASS z_xco_rap_serv_bindg_deep_dp IMPLEMENTATION.
       iv_version                   = iv_version
       iv_sd_root_entity_alias_name = iv_sd_root_entity_alias_name ).
 
-    "Get BO Root CDS View (can be CDS Classic View or CDS View Entity)
-    _get_bo_root_cds_view( ).
-
     "Get Child BO Entities
     _get_child_bo_entities( ).
 
@@ -229,15 +226,15 @@ CLASS z_xco_rap_serv_bindg_deep_dp IMPLEMENTATION.
               iv_sd_root_entity_alias_name.
     ENDIF.
 
-    APPEND INITIAL LINE TO rs_data_2-cds_views
-      ASSIGNING FIELD-SYMBOL(<ls_cds_view>).
+    APPEND INITIAL LINE TO rs_data_2-entities
+      ASSIGNING FIELD-SYMBOL(<ls_entity>).
     DATA(dp) = NEW z_xco_cds_view_deep_read_dp( ).
-    <ls_cds_view> = dp->deep_read_cds_view( <ls_exposure>-name ).
+    <ls_entity> = dp->deep_read_cds_view( <ls_exposure>-name ).
 
   ENDMETHOD.
 
 
-  METHOD _get_bo_root_cds_view.
+  METHOD _get_bo_root_cds_view_index.
 
   ENDMETHOD.
 

@@ -93,7 +93,13 @@ CLASS z_xco_cds_behavior_definition DEFINITION
       tt_behaviors TYPE STANDARD TABLE OF ts_behavior WITH EMPTY KEY.
 
     TYPES:
-      BEGIN OF ts_data,
+      BEGIN OF ts_read_data,
+        name                      TYPE tv_behavior_definition_name,
+        description               TYPE if_xco_cp_gen_srvd_s_form=>tv_short_description,
+      END OF ts_read_data.
+
+    TYPES:
+      BEGIN OF ts_change_data,
         name                      TYPE tv_behavior_definition_name,
         description               TYPE if_xco_cp_gen_srvd_s_form=>tv_short_description,
         implementation_type       TYPE REF TO  cl_xco_bdef_implementation_typ,
@@ -103,13 +109,13 @@ CLASS z_xco_cds_behavior_definition DEFINITION
         "Strict mode values: zdmo_cl_rap_node=>strict_mode_2
         strict_mode               TYPE i,
         behaviors                 TYPE tt_behaviors,
-      END OF ts_data.
+      END OF ts_change_data.
 
     TYPES:
       BEGIN OF ts_create,
         transport_request   TYPE sxco_transport,
         package             TYPE sxco_package,
-        behavior_definition TYPE ts_data,
+        behavior_definition TYPE ts_change_data,
       END OF ts_create.
 
     CLASS-METHODS get_instance
@@ -123,7 +129,7 @@ CLASS z_xco_cds_behavior_definition DEFINITION
 
 
     METHODS get_data
-      RETURNING VALUE(rs_data) TYPE ts_data.
+      RETURNING VALUE(rs_data) TYPE ts_read_data.
 
   PROTECTED SECTION.
 
@@ -255,38 +261,25 @@ CLASS z_xco_cds_behavior_definition IMPLEMENTATION.
 
   METHOD get_data.
 
-*    DATA(lo_behavior_definition) = xco_cp_abap_repository=>object->srvb->for( gv_behavior_definition_name ).
+    rs_data-name        = gv_behavior_definition_name.
+
+
+    DATA(lo_repo_behavior_definition) = xco_cp_abap_repository=>object->bdef->for( gv_behavior_definition_name ).
+    DATA(lo_cds_behavior_definition) = xco_cp_cds=>behavior_definition( iv_name = gv_behavior_definition_name ).
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    " Header
+    DATA(lo_content) = lo_repo_behavior_definition->content( ).
+    rs_data-description = lo_content->get_short_description( ).
+
+*    """""""""""""""""""""""""""""""""""""""""""""""""""
+*    "Get Direct Annotations
+*    DATA(lo_annotations) =
+*      xco_cp_cds=>annotations->direct->of( lo_cds_behavior_definition ).
 *
-*    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-*    " Header
-*    rs_data-name        = gv_behavior_definition_name.
-*
-*    DATA(ls_content) = lo_behavior_definition->content( )->get( ).
-*    rs_data-description = ls_content-short_description.
-*    rs_data-binding_type = ls_content-binding_type.
-*
-*    DATA(lt_services) = lo_behavior_definition->services->all->get( ).
-*
-*    LOOP AT lt_services
-*      ASSIGNING FIELD-SYMBOL(<ls_service>).
-*
-*      DATA(lo_versions) = <ls_service>->versions.
-*      DATA(lt_versions) = lo_versions->all->get( ).
-*
-*      LOOP AT lt_versions
-*        ASSIGNING FIELD-SYMBOL(<lv_version>).
-*
-*        DATA(ls_version_content) = <lv_version>->content( )->get( ).
-*
-*        APPEND
-*          VALUE #(
-*            service_definition_name = ls_version_content-service_definition->name
-*            version = <lv_version>->version )
-*          TO rs_data-services.
-*
-*      ENDLOOP.
-*
-*    ENDLOOP.
+*    DATA(lo_metadata_extension) =
+*      xco_cp_cds=>annotations->metadata_extension->of( lo_cds_behavior_definition ).
+
 
   ENDMETHOD.
 

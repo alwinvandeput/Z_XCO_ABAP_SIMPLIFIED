@@ -22,8 +22,9 @@ CLASS z_xco_cds_view_deep_read_dp DEFINITION
 
     TYPES:
       BEGIN OF ts_cds_view,
-        cds_view_data TYPE z_xco_generic_cds_view_if=>ts_data,
-        behavior_data TYPE z_xco_cds_behavior_definition=>ts_data,
+        cds_view_data           TYPE z_xco_generic_cds_view_if=>ts_data,
+        behavior_data           TYPE z_xco_cds_behavior_definition=>ts_read_data,
+        extension_metadata_data TYPE z_xco_cds_metadata_extension=>ts_read_data,
       END OF ts_cds_view,
       BEGIN OF ts_deep_read_cds_view,
         cds_views           TYPE STANDARD TABLE OF ts_cds_view WITH EMPTY KEY,
@@ -93,6 +94,9 @@ CLASS z_xco_cds_view_deep_read_dp IMPLEMENTATION.
       """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
       " Add Metadata Extension
       DATA(lo_metadata_extension) = z_xco_cds_metadata_extension=>get_instance( lv_cds_view_name ).
+      IF lo_metadata_extension IS NOT INITIAL.
+        <cds_view>-extension_metadata_data = lo_metadata_extension->get_data( ).
+      ENDIF.
 
       """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
       " Add Database Table
@@ -104,8 +108,8 @@ CLASS z_xco_cds_view_deep_read_dp IMPLEMENTATION.
         EXIT.
 
       ENDIF.
-*
-*      lv_cds_view_name = <cds_view>-data_source-name.
+
+      lv_cds_view_name = <cds_view>-cds_view_data-data_source-name.
 
     ENDDO.
 
@@ -113,7 +117,9 @@ CLASS z_xco_cds_view_deep_read_dp IMPLEMENTATION.
     "rs_deep_read_cds_view-bo_cds_view_index
     LOOP AT rs_deep_read_cds_view-cds_views ASSIGNING <cds_view>.
 
-
+      IF <cds_view>-behavior_data IS NOT INITIAL.
+        rs_deep_read_cds_view-bo_cds_view_index = sy-tabix.
+      ENDIF.
 
     ENDLOOP.
 
