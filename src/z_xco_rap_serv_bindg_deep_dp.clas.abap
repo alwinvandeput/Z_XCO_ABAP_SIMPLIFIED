@@ -283,6 +283,8 @@ CLASS z_xco_rap_serv_bindg_deep_dp IMPLEMENTATION.
       DATA(dp) = NEW z_xco_cds_view_deep_read_dp( ).
       <child_entity> = dp->deep_read_cds_view( <composition>-entity_name ).
 
+      <child_entity>-bo_cds_view_index = 1.
+
       ASSERT lines( <child_entity>-cds_views ) > 0.
 
       ASSIGN <child_entity>-cds_views[ 1 ] TO FIELD-SYMBOL(<child_cds_view>).
@@ -343,6 +345,8 @@ CLASS z_xco_rap_serv_bindg_deep_dp IMPLEMENTATION.
         IF <cds_view>-cds_view_data-name = child_wide_read_cds_view-cds_view_data-data_source-name.
 
           INSERT child_wide_read_cds_view INTO <entity>-cds_views INDEX 1.
+
+          <entity>-bo_cds_view_index += 1.
 
           _up_read_child_entities(
             EXPORTING
